@@ -1,0 +1,12 @@
+@import '~@angular/material/theming';
+
+// Available color palettes: https://www.google.com/design/spec/style/color.html
+$mcp-app-primary: mat-palette($mat-blue, 600);
+$mcp-app-accent:  mat-palette($mat-green, 600);
+$mcp-app-warn:    mat-palette($mat-amber);
+$mcp-app-danger:  mat-palette($mat-red);
+
+$primary: mat-color($mcp-app-primary);
+$accent: mat-color($mcp-app-accent);
+$warn: mat-color($mcp-app-warn);
+$danger: mat-color($mcp-app-danger);
