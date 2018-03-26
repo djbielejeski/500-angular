@@ -1,0 +1,101 @@
+$card-width: 20vw;
+$card-width-double: $card-width * 2;
+$card-width-half: $card-width * 0.5;
+$card-height: 15vh;
+$card-height-double: $card-height * 2;
+$card-height-half: $card-height * 0.5;
+
+.playing-card {
+  background-color: gray;
+  width: $card-width;
+  height: $card-height;
+
+  max-height: 150px;
+  max-width: 100px;
+}
+
+.full-height-container {
+  height: 100vh;
+  width: 100vw;
+
+  .player-1, .player-3 {
+
+  }
+
+  .player-1 {
+    background-color: blue;
+    height: $card-height;
+  }
+
+  .player-3 {
+    background-color: purple;
+    height: $card-height;
+  }
+
+  .middle-container {
+    height: calc(100vh - #{$card-height-double});
+    width: 100%;
+
+    .player-2, .player-4, .card-area {
+      height: 100%;
+      display: inline-block;
+    }
+
+    .player-2, .player-4{
+      width: $card-width;
+    }
+
+    .player-2 {
+      background-color: red;
+      margin-right: -5px;
+    }
+
+    .card-area {
+      background-color: green;
+      width: calc(100vw - #{$card-width-double});
+      position: relative;
+      vertical-align: top;
+
+      $card-area-padding: 12px;
+
+      .card-1, .card-2, .card-3, .card-4{
+        position: absolute;
+      }
+
+      .card-1, .card-3 {
+        right: 0;
+        left: 0;
+        .playing-card {
+          margin: 0px auto;
+        }
+      }
+
+      .card-2, .card-4{
+        vertical-align: middle;
+        top: 40%;
+        bottom: 0;
+      }
+
+      .card-3 {
+        top: $card-area-padding;
+      }
+      .card-2 {
+        left: $card-area-padding;
+      }
+      .card-4 {
+        right: $card-area-padding;
+      }
+      .card-1 {
+        bottom: $card-area-padding;
+      }
+    }
+
+    .player-4 {
+      background-color: yellow;
+      margin-left: -5px;
+    }
+  }
+}
+
+
+
