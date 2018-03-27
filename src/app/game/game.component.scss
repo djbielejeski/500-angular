@@ -1,39 +1,101 @@
-$card-width: 20vw;
-$card-width-double: $card-width * 2;
-$card-width-half: $card-width * 0.5;
-$card-height: 15vh;
-$card-height-double: $card-height * 2;
-$card-height-half: $card-height * 0.5;
+$card-container-width: 20vw;
+$card-container-width-double: $card-container-width * 2;
+$card-container-width-half: $card-container-width * 0.5;
+$card-container-height: 15vh;
+$card-container-height-double: $card-container-height * 2;
+$card-container-height-half: $card-container-height * 0.5;
+
+.player-hand-horizontal, .player-hand-vertical {
+  position: relative;
+  text-align: center;
+}
+
+.player-hand-vertical{
+  height: 100%;
+}
 
 .playing-card {
-  background-color: gray;
-  width: $card-width;
-  height: $card-height;
+  width: $card-container-width;
+  height: $card-container-height;
 
   max-height: 150px;
   max-width: 100px;
+
+  background: url("/assets/cards/back.png") no-repeat center;
+  background-size: contain;
+
+  $card-suit-list: clubs, diamonds, hearts, spades;
+  $card-name-list: 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14;
+
+  @each $card-suit in $card-suit-list {
+    @each $card-name in $card-name-list {
+      &.playing-card-#{$card-suit}-#{$card-name} {
+        background: url("/assets/cards/#{$card-suit}/#{$card-name}.png") no-repeat center;
+        background-size: contain;
+      }
+    }
+  }
+
+  /* add the joker */
+  &.playing-card-none-17 {
+    background: url("/assets/cards/none/17.png") no-repeat center;
+    background-size: contain;
+  }
 }
+
+
 
 .full-height-container {
   height: 100vh;
   width: 100vw;
+  overflow: hidden;
 
   .player-1, .player-3 {
+    /* Horizontal cards */
 
+    .playing-card {
+        display: inline-block;
+      }
+  }
+
+  .player-2, .player-4 {
+    /* vertical cards */
+    .playing-card{
+      position: absolute;
+      @for $i from 1 through 10 {
+        &.playing-card:nth-child(#{$i}){
+          @if $i > 1 {
+            top: percentage(($i - 1) * 0.08);
+          }
+        }
+      }
+    }
+  }
+
+  .player-2{
+    .playing-card{
+      right: $card-container-width-half / 2;
+    }
+  }
+
+  .player-4{
+    .playing-card{
+      left: $card-container-width-half / 2;
+    }
   }
 
   .player-1 {
     background-color: blue;
-    height: $card-height;
+    height: $card-container-height;
   }
 
   .player-3 {
     background-color: purple;
-    height: $card-height;
+    height: $card-container-height;
   }
 
   .middle-container {
-    height: calc(100vh - #{$card-height-double});
+    height: calc(100vh - #{$card-container-height-double});
     width: 100%;
 
     .player-2, .player-4, .card-area {
@@ -42,7 +104,7 @@ $card-height-half: $card-height * 0.5;
     }
 
     .player-2, .player-4{
-      width: $card-width;
+      width: $card-container-width;
     }
 
     .player-2 {
@@ -52,7 +114,7 @@ $card-height-half: $card-height * 0.5;
 
     .card-area {
       background-color: green;
-      width: calc(100vw - #{$card-width-double});
+      width: calc(100vw - #{$card-container-width-double});
       position: relative;
       vertical-align: top;
 
@@ -76,6 +138,17 @@ $card-height-half: $card-height * 0.5;
         bottom: 0;
       }
 
+      .blind {
+        position: absolute;
+        top: 40%;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        text-align: center;
+        .playing-card {
+          display: inline-block;
+        }
+      }
       .card-3 {
         top: $card-area-padding;
       }
@@ -98,4 +171,120 @@ $card-height-half: $card-height * 0.5;
 }
 
 
+/* Mobile */
+@media (min-width: 0px) {
+  .full-height-container {
+    .player-1, .player-3 {
+      position: relative;
 
+      /* Horizontal cards */
+      .playing-card {
+        display: inline-block;
+        margin-left: -13%;
+
+        &.playing-card:first-child{
+          margin-left: 0px;
+        }
+      }
+    }
+
+    /* TODO */
+    .has-blind {
+      .player-1, .player-3 {
+        position: relative;
+
+        /* Horizontal cards */
+        .playing-card {
+          display: inline-block;
+          margin-left: -13%;
+
+          &.playing-card:first-child{
+            margin-left: 0px;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 576px) {
+  .full-height-container {
+    .player-1, .player-3 {
+      position: relative;
+
+      /* Horizontal cards */
+      .playing-card {
+        display: inline-block;
+        margin-left: -9%;
+
+        &.playing-card:first-child{
+          margin-left: 0px;
+        }
+      }
+    }
+
+    /* TODO */
+    .has-blind {
+      .player-1 {
+        .playing-card {
+          margin-left: -9%;
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .full-height-container {
+    .player-1, .player-3 {
+      position: relative;
+
+      /* Horizontal cards */
+      .playing-card {
+        display: inline-block;
+        margin-left: -5%;
+
+        &.playing-card:first-child{
+          margin-left: 0px;
+        }
+      }
+    }
+
+    /* TODO */
+    .has-blind {
+      .player-1 {
+        .playing-card {
+          margin-left: -13%;
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 1100px) {
+  .full-height-container {
+    .player-1, .player-3 {
+      position: relative;
+
+      /* Horizontal cards */
+      .playing-card {
+        display: inline-block;
+        margin-left: -2%;
+
+        &.playing-card:first-child{
+          margin-left: 0px;
+        }
+      }
+    }
+
+    /* TODO */
+    .has-blind {
+      .player-1 {
+        .playing-card {
+          display: inline-block;
+          margin-left: -2%;
+        }
+      }
+    }
+  }
+}

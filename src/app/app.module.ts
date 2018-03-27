@@ -11,6 +11,7 @@ import { AppRootComponent } from '@app/app-root/app-root.component';
 import { GameComponent } from '@app/game/game.component';
 
 // Services
+import * as services from '@app/shared/services';
 
 // Store
 
@@ -26,7 +27,10 @@ import { GameComponent } from '@app/game/game.component';
     BrowserAnimationsModule,
     RouterModule.forRoot(routes), //, { enableTracing: true }
   ],
-  providers: [],
+  providers: [
+    services.GameService,
+    services.SetService
+  ],
   bootstrap: [AppRootComponent]
 })
 export class AppModule { }
