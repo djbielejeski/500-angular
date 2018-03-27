@@ -5,6 +5,8 @@ $card-container-height: 15vh;
 $card-container-height-double: $card-container-height * 2;
 $card-container-height-half: $card-container-height * 0.5;
 
+$hover-height: 20px;
+
 .player-hand-horizontal, .player-hand-vertical {
   position: relative;
   text-align: center;
@@ -54,8 +56,20 @@ $card-container-height-half: $card-container-height * 0.5;
     /* Horizontal cards */
 
     .playing-card {
-        display: inline-block;
+      display: inline-block;
+    }
+  }
+  /* hover animation*/
+  .player-1{
+    .playing-card {
+      transition: .15s;
+      margin-top: $hover-height;
+      vertical-align: top;
+
+      &:hover, &:focus {
+        margin-top: 0px;
       }
+    }
   }
 
   .player-2, .player-4 {
@@ -86,7 +100,7 @@ $card-container-height-half: $card-container-height * 0.5;
 
   .player-1 {
     background-color: blue;
-    height: $card-container-height;
+    height: calc(#{$card-container-height} + #{$hover-height});
   }
 
   .player-3 {
@@ -95,7 +109,7 @@ $card-container-height-half: $card-container-height * 0.5;
   }
 
   .middle-container {
-    height: calc(100vh - #{$card-container-height-double});
+    height: calc(100vh - #{$card-container-height-double} - #{$hover-height});
     width: 100%;
 
     .player-2, .player-4, .card-area {
