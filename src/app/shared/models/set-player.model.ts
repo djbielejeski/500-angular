@@ -3,6 +3,7 @@ import {PlayerType, Position, Suit} from '@app/shared/models/types.enums';
 import {Hand} from '@app/shared/models/hand.model';
 import {Bid} from '@app/shared/models/bid.model';
 import {HandStrength, HandStrengthHelpers} from '@app/shared/models/hand-strength.model';
+import {GamePlayer} from '@app/shared/models/game-player.model';
 
 export class SetPlayer implements IPlayerBaseModel {
   Id: number;
@@ -12,11 +13,23 @@ export class SetPlayer implements IPlayerBaseModel {
   SeatingPosition: Position;
   TeamId: number;
 
+  constructor(player: GamePlayer){
+    this.Id = player.Id;
+    this.PlayerType = player.PlayerType;
+    this.Hand = new Hand();
+    this.Name = player.Name;
+    this.SeatingPosition = player.SeatingPosition;
+    this.TeamId = player.TeamId;
+  }
+
   // Non-Inherited Properties
   Bid: Bid;
 
-  get StrongestSuit(): HandStrength
-  {
+  get StrongestBid() : Bid {
+    return new Bid(this.StrongestSuit.suit, this.StrongestSuit.bidValue);
+  }
+
+  get StrongestSuit(): HandStrength {
       var strongestBid: HandStrength = this.HeartsStrength;
       if (this.DiamondsStrength.bidValue > strongestBid.bidValue)
       {
@@ -36,21 +49,17 @@ export class SetPlayer implements IPlayerBaseModel {
       return strongestBid;
   }
 
-  get SpadesStrength() : HandStrength
-  {
+  get SpadesStrength() : HandStrength {
     return HandStrengthHelpers.getStrength(this.Hand.Cards, Suit.spades);
   }
 
-  get ClubsStrength() : HandStrength
-  {
+  get ClubsStrength() : HandStrength {
     return HandStrengthHelpers.getStrength(this.Hand.Cards, Suit.clubs);
   }
-  get DiamondsStrength() : HandStrength
-  {
+  get DiamondsStrength() : HandStrength {
     return HandStrengthHelpers.getStrength(this.Hand.Cards, Suit.diamonds);
   }
-  get HeartsStrength() : HandStrength
-  {
+  get HeartsStrength() : HandStrength {
     return HandStrengthHelpers.getStrength(this.Hand.Cards, Suit.hearts);
   }
 }

@@ -86,17 +86,6 @@ $hover-height: 20px;
     }
   }
 
-  .player-2{
-    .playing-card{
-      right: $card-container-width-half / 2;
-    }
-  }
-
-  .player-4{
-    .playing-card{
-      left: $card-container-width-half / 2;
-    }
-  }
 
   .player-1 {
     background-color: blue;
@@ -154,7 +143,7 @@ $hover-height: 20px;
 
       .blind {
         position: absolute;
-        top: 40%;
+        top: 48%;
         left: 0;
         right: 0;
         z-index: 1000;
@@ -165,6 +154,7 @@ $hover-height: 20px;
       }
       .card-3 {
         top: $card-area-padding;
+        text-align: center;
       }
       .card-2 {
         left: $card-area-padding;
@@ -174,6 +164,7 @@ $hover-height: 20px;
       }
       .card-1 {
         bottom: $card-area-padding;
+        text-align: center;
       }
     }
 
@@ -186,7 +177,8 @@ $hover-height: 20px;
 
 
 /* Mobile */
-@media (min-width: 0px) {
+@media (min-width: 320px) {
+
   .full-height-container {
     .player-1, .player-3 {
       position: relative;
@@ -222,6 +214,19 @@ $hover-height: 20px;
 }
 
 @media (min-width: 576px) {
+
+  .player-2{
+    .playing-card{
+      left: 0;
+    }
+  }
+
+  .player-4{
+    .playing-card{
+      right: 0;
+    }
+  }
+
   .full-height-container {
     .player-1, .player-3 {
       position: relative;
@@ -249,6 +254,19 @@ $hover-height: 20px;
 }
 
 @media (min-width: 768px) {
+
+  .player-2{
+    .playing-card{
+      left: $card-container-width-half / 2;
+    }
+  }
+
+  .player-4{
+    .playing-card{
+      right: $card-container-width-half / 2;
+    }
+  }
+
   .full-height-container {
     .player-1, .player-3 {
       position: relative;

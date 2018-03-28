@@ -45,7 +45,7 @@ export class Set
     var realBids: Bid[] = _(this.Players)
       .filter(x => x.Bid != null)
       .map(x => x.Bid)
-      .sortBy(x => x.Bid.value)
+      .sortBy(x => x.value)
       .value();
 
     if (realBids.length == 4 && _.find(realBids, (bid: Bid) => (bid.value > BidValue.six))) {
@@ -55,8 +55,7 @@ export class Set
     return null;
   }
 
-  get Redeal(): boolean
-  {
+  get Redeal(): boolean {
     return this.PlayerWhoWonTheBid == null && this.CurrentPlayersBidId == 0;
   }
 
@@ -67,6 +66,7 @@ export class Set
   get CurrentPlayingRound(): PlayingRound {
     return _.takeRight(this.PlayingRounds, 1);
   }
+
   get HighBid(): Bid {
     var maxBid: Bid = null;
 
@@ -84,8 +84,7 @@ export class Set
     return maxBid;
   }
 
-  get Bids(): Bid[]
-  {
+  get Bids(): Bid[] {
     if (this.Players && this.Players.length > 0)
     {
       return _(this.Players).filter(x => x.Bid != null).map(x => x.Bid).value();
@@ -94,30 +93,15 @@ export class Set
     return [];
   }
 
-  get AllowedBids(): Bid[]
-  {
-    if(_.find(this.Bids, (bid: Bid) => { return bid.Points <= 0 })) {
+  get AllowedBids(): Bid[]  {
+    if(this.Bids.length == 0 || _.filter(this.Bids, (bid: Bid) => { return bid.Points > 0 }).length == 0) {
       return Bids.allBids();
     }
-    else
-    {
+    else {
       var allAllowedBids: Bid[]  = [Bids.Pass()];
-      allAllowedBids = allAllowedBids.concat(_.filter(Bids.allBids, (x => x.Points > this.HighBid.Points)));
+      allAllowedBids = allAllowedBids.concat(_.filter(Bids.allBids(), (x => x.Points > this.HighBid.Points)));
       return allAllowedBids;
     }
-  }
-
-  get PlayedCards(): Card[]
-  {
-    if (this.PlayingRounds != null && this.PlayingRounds.length > 0)
-    {
-      return _(this.PlayingRounds)
-        .map((playingRound: PlayingRound) => [playingRound.Card1Play, playingRound.Card2Play, playingRound.Card3Play, playingRound.Card4Play])
-        .flatten()
-        .value();
-    }
-
-    return [];
   }
 
   // Helper functions
@@ -163,7 +147,7 @@ export class Set
     this.Blind.Sort();
   }
 
-  private AddCards(count: number, hand: Hand, deck: Card[]): Card[]{
+  private AddCards(count: number, hand: Hand, deck: Card[]): Card[] {
     if (deck.length == count)
     {
       hand.Cards = hand.Cards.concat(deck);
@@ -179,7 +163,7 @@ export class Set
     return deck;
   }
 
-  RandomPlayerId(players: GamePlayer[]) : number {
+  RandomPlayerId(players: GamePlayer[]): number {
     var randomNumber = Math.floor(Math.random() * 4) + 1
     var player = _.find(players, (x => x.SeatingPosition == randomNumber));
     return player.Id;
@@ -188,15 +172,7 @@ export class Set
   BuildBiddingOrder(players: GamePlayer[]) {
     var setPlayers: SetPlayer[] = [];
     _.each(players, (player: GamePlayer) => {
-      var setPlayer: SetPlayer = <SetPlayer> {
-        Id: player.Id,
-        PlayerType: player.PlayerType,
-        Hand: new Hand(),
-        Name: player.Name,
-        SeatingPosition: player.SeatingPosition,
-        TeamId: player.TeamId
-      };
-      setPlayers.push(setPlayer);
+      setPlayers.push(new SetPlayer(player));
     });
 
     this.Players = setPlayers;
@@ -224,8 +200,7 @@ export class Set
     this.PlayerBiddingOrder = biddingOrder;
   }
 
-  private BuildPlayingOrder(leadingPlayerId: number) : number[]
-  {
+  private BuildPlayingOrder(leadingPlayerId: number): number[] {
     var playingOrder: number[] = [];
     var firstPlayer: SetPlayer = _.find(this.Players, { Id: leadingPlayerId });
     var nextPlayerPosition = firstPlayer.SeatingPosition;
@@ -246,20 +221,4 @@ export class Set
 
     return playingOrder;
   }
-
-//private Guid NextBiddingPlayerId()
-//{
-//    PlayerBase lastStartingPlayer = Players.First(x => x.Id == Sets.Last().StartingBiddingPlayerId);
-//    int position = (int)lastStartingPlayer.SeatingPosition;
-//    position++;
-//    if (position > 4)
-//    {
-//        return Players.First(x => x.SeatingPosition == Position.First).Id;
-//    }
-//    else
-//    {
-//        return Players.First(x => x.SeatingPosition == (Position)position).Id;
-//    }
-//}
-
 }

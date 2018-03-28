@@ -15,10 +15,6 @@ export class HandStrength {
 }
 
 export namespace HandStrengthHelpers {
-  export function strongestBid(player: SetPlayer): Bid {
-    return new Bid(player.StrongestSuit.suit, player.StrongestSuit.bidValue);
-  }
-
   export function getStrength(cards: Card[], suit: Suit): HandStrength {
     var handStrength = new HandStrength(suit);
     switch (Cards.getBidStrengthKey(cards, suit))

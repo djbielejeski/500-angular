@@ -12,13 +12,13 @@
 <div class="full-height-container">
  <div class="player-3">
    <div class="player-hand-horizontal">
-     <div *ngFor="let card of game.player3Cards" class="playing-card" [ngClass]="card.cssClass"></div>
+     <div *ngFor="let card of game.player3.Hand.Cards" class="playing-card" [ngClass]="card.cssClass"></div>
    </div>
  </div>
  <div class="middle-container">
    <div class="player-2">
      <div class="player-hand-vertical">
-       <div *ngFor="let card of game.player2Cards" class="playing-card" [ngClass]="card.cssClass"></div>
+       <div *ngFor="let card of game.player2.Hand.Cards" class="playing-card" [ngClass]="card.cssClass"></div>
      </div>
    </div>
    <div class="card-area">
@@ -26,27 +26,32 @@
        <div *ngFor="let card of game.blindCards" class="playing-card" [ngClass]="card.cssClass"></div>
      </div>
      <div class="card-3">
-       <div class="playing-card"></div>
+       {{ game.player3BiddingPosition }} | {{ game.player3.Bid.BidDisplay }}
+       <!--<div class="playing-card"></div>-->
      </div>
      <div class="card-2">
-       <div class="playing-card"></div>
+        {{ game.player2BiddingPosition }} | {{ game.player2.Bid.BidDisplay }}
+       <!--<div class="playing-card"></div>-->
      </div>
      <div class="card-4">
-       <div class="playing-card"></div>
+       {{ game.player4BiddingPosition }} | {{ game.player4.Bid.BidDisplay }}
+       <!--<div class="playing-card"></div>-->
      </div>
      <div class="card-1">
-       <div class="playing-card"></div>
+       {{ game.player1BiddingPosition }} | {{ game.player1.Bid.BidDisplay }}
+       <!--<div class="playing-card"></div>-->
      </div>
    </div>
    <div class="player-4">
      <div class="player-hand-vertical">
-       <div *ngFor="let card of game.player4Cards" class="playing-card" [ngClass]="card.cssClass"></div>
+       <div *ngFor="let card of game.player4.Hand.Cards" class="playing-card" [ngClass]="card.cssClass"></div>
      </div>
    </div>
  </div>
  <div class="player-1">
-   <div class="player-hand-horizontal" [ngClass]="{ 'has-blind': game.player1Cards.length > 10 }">
-     <div *ngFor="let card of game.player1Cards" class="playing-card" [ngClass]="card.cssClass"></div>
+   <button class="btn btn-success btn-sm" type="button" (click)="playCard()">Play Card</button>
+   <div class="player-hand-horizontal" [ngClass]="{ 'has-blind': game.player1.Hand.Cards.length > 10 }">
+     <div *ngFor="let card of game.player1.Hand.Cards" class="playing-card" [ngClass]="card.cssClass"></div>
    </div>
  </div>
 </div>

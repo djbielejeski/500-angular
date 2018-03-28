@@ -4,7 +4,7 @@ import {Game, Set} from '@app/shared/models';
 
 @Injectable()
 export class GameService {
-  StartGame(): Game{
+  StartGame(): Game {
     var game: Game = new Game();
     game.SetupGame();
 

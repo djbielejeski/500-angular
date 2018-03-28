@@ -54,26 +54,40 @@ export class Game {
     return [];
   }
 
-  get player1Cards(): Card[]{
-    return this.getPlayerCards(Position.first);
+  get player1(): SetPlayer{
+    return this.getPlayer(Position.first);
   }
-  get player2Cards(): Card[]{
-    return this.getPlayerCards(Position.second);
-  }
-  get player3Cards(): Card[]{
-    return this.getPlayerCards(Position.third);
-  }
-  get player4Cards(): Card[] {
-    return this.getPlayerCards(Position.fourth);
+  get player1BiddingPosition(): Position {
+    return this.activeSet.PlayerBiddingOrder.indexOf(this.player1.Id) + 1;
   }
 
-  private getPlayerCards(position: Position) : Card[] {
+  get player2(): SetPlayer{
+    return this.getPlayer(Position.second);
+  }
+  get player2BiddingPosition(): Position {
+    return this.activeSet.PlayerBiddingOrder.indexOf(this.player2.Id) + 1;
+  }
+
+  get player3(): SetPlayer{
+    return this.getPlayer(Position.third);
+  }
+  get player3BiddingPosition(): Position {
+    return this.activeSet.PlayerBiddingOrder.indexOf(this.player3.Id) + 1;
+  }
+
+  get player4(): SetPlayer {
+    return this.getPlayer(Position.fourth);
+  }
+  get player4BiddingPosition(): Position {
+    return this.activeSet.PlayerBiddingOrder.indexOf(this.player4.Id) + 1;
+  }
+
+  private getPlayer(position: Position) : SetPlayer {
     if(this.activeSet){
-      var player = _.find(this.activeSet.Players, (player: SetPlayer) => player.SeatingPosition == position);
-      return player.Hand.Cards;
+      return _.find(this.activeSet.Players, (player: SetPlayer) => player.SeatingPosition == position);
     }
 
-    return [];
+    return null;
   }
 
   get Team1Score(): number

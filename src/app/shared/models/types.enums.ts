@@ -35,8 +35,7 @@ export enum PlayerType {
   human = 1
 }
 
-export enum Position
-{
+export enum Position{
   first = 1,
   second = 2,
   third = 3,

@@ -16,7 +16,7 @@ export class Bid {
       return "Pass";
     }
 
-    return this.value + " of " + this.suit;
+    return BidValue[this.value] + " of " + Suit[this.suit];
   }
 
   get Points(): number {
@@ -66,11 +66,17 @@ export class Bid {
 
 export namespace Bids {
   export function highestBid(players: SetPlayer[]): SetPlayer {
-    return _(players)
+    var lastBid = _(players)
           .filter((player: SetPlayer) => player.Bid != null)
           .sortBy((player: SetPlayer) => player.Bid.Points)
-          .takeRight(1);
-    //return players.Where(x => x.Bid != null).OrderBy(x => x.Bid.Points).FirstOrDefault();
+          .takeRight(1)
+          .value();
+
+    if(lastBid.length == 1){
+      return lastBid[0];
+    }
+
+    return null;
   }
 
   export function Pass(): Bid {

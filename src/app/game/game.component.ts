@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { Component, OnInit } from '@angular/core';
-import { GameService } from '@app/shared/services';
+import {GameService, SetService} from '@app/shared/services';
 import {Card, Game, Set, Position, SetPlayer} from '@app/shared/models';
 
 @Component({
@@ -10,12 +10,18 @@ import {Card, Game, Set, Position, SetPlayer} from '@app/shared/models';
 })
 export class GameComponent implements OnInit {
   game: Game;
-  constructor(private gameService: GameService){
+  constructor(private gameService: GameService, private setService: SetService){
 
   }
 
   ngOnInit(){
     this.game = this.gameService.StartGame();
+    this.setService.startBidding(this.game.activeSet);
+    console.log(this.game);
+  }
+
+  playCard(){
+    this.setService.play
   }
 
 }
