@@ -47,96 +47,79 @@ export class AIPlayCardService {
       }
     }
 
-    else {
-      /*
-      // previous rounds have occurred, different logic
-      var cardsPlayed: Card[] = [];
-
-      _.each(set.PlayingRounds, (round) => {
-        cardsPlayed.push(round.Card1Play);
-        cardsPlayed.push(round.Card2Play);
-        cardsPlayed.push(round.Card3Play);
-        cardsPlayed.push(round.Card4Play);
-      });
-
-      var lastRound: PlayingRound = set.PlayingRounds[set.PlayingRounds.length - 1];
-
-      Dictionary<Suit, List<Card>> cardsPlayedBySuit = new Dictionary<Suit, List<Card>>();
-      var groups = cardsPlayed.GroupBy(x => x.Suit);
-      foreach (var group in groups)
-      {
-        cardsPlayedBySuit.Add(group.Key, group.ToList());
-      }
-    }*/
-
-      //#region Opening round?
+    /*
+    //#region Opening round?
       //#region yes
-      //#region Am I lead player?
-      //#region yes
-      // do I have trump?
-      // yes
-      // play highest I have
-      // no
-      // play highest offsuit, if tied, look at lowest card count in that suit for tie breaker
+        //#region Am I lead player?
+          //#region yes
+            // do I have trump?
+            // yes
+            // play highest I have
+            // no
+            // play highest offsuit, if tied, look at lowest card count in that suit for tie breaker
+          //#endregion // yes
+          //#region no
+            // do I have to follow suit?
+            // yes
+            // Does partner currently have the trick?
+            // yes
+            // sluff what I can following suit or short suit
+            // no
+            // Does partner currently have the trick?
+            // yes
+            // is his card going to make it around?  Ace offsuit, high trump, King that I have the Ace for, etc
+            // yes
+            // sluff what I can following suit or short suit
+            // no
+            // go bigger than his card following suit or trump it
+            // no
+            // can I trump it?
+            // yes
+            // play lowest trump to win
+            // no
+            // sluff card, try to short suit as best we can
+          //#endregion // no
+        //#endregion // Am I lead player?
       //#endregion // yes
       //#region no
-      // do I have to follow suit?
-      // yes
-      // Does partner currently have the trick?
-      // yes
-      // sluff what I can following suit or short suit
-      // no
-      // Does partner currently have the trick?
-      // yes
-      // is his card going to make it around?  Ace offsuit, high trump, King that I have the Ace for, etc
-      // yes
-      // sluff what I can following suit or short suit
-      // no
-      // go bigger than his card following suit or trump it
-      // no
-      // can I trump it?
-      // yes
-      // play lowest trump to win
-      // no
-      // sluff card, try to short suit as best we can
+        //#region Am I lead player?
+          //#region yes
+            // do I have trump?
+            // yes
+            // does enemy have trump?
+            // yes
+            // do I have highest?
+            // yes
+            // play highest trump
+            // no
+            // does enemy have highest?
+            // yes
+
+            // If not, figure out best offsuit lead
+            // if not
+            // did my partner play yet?
+            // if so, do they own this trick?
+
+            // if so, sluff what I can following suit or short suit
+            // if not, can I win while following suit?
+            // if so, take the trick thus far
+            // if not, sluff what I can following suit or short suit
+
+            // if not, do I need to follow suit on a non trump play?
+            // if so, play my biggest card in that suit
+            // if not, figure out my best play within trump
+          //#endregion // yes
+        //#endregion // Am I lead player?
       //#endregion // no
-      //#endregion // Am I lead player?
-      //#endregion // yes
-      //#region no
-      //#region Am I lead player?
-      //#region yes
-      // do I have trump?
-      // yes
-      // does enemy have trump?
-      // yes
-      // do I have highest?
-      // yes
-      // play highest trump
-      // no
-      // does enemy have highest?
-      // yes
-
-      // If not, figure out best offsuit lead
-      // if not
-      // did my partner play yet?
-      // if so, do they own this trick?
-
-      // if so, sluff what I can following suit or short suit
-      // if not, can I win while following suit?
-      // if so, take the trick thus far
-      // if not, sluff what I can following suit or short suit
-
-      // if not, do I need to follow suit on a non trump play?
-      // if so, play my biggest card in that suit
-      // if not, figure out my best play within trump
-      //#endregion // yes
-      //#endregion // Am I lead player?
-      //#endregion // no
-      //#endregion // Opening round?
-    }
+    //#endregion // Opening round?
+    */
 
     // Play the card
-    this.playCard(player, cardToPlay);
+    this.layCard(set, player, cardToPlay);
+  }
+
+  layCard(set: Set, player: SetPlayer, cardToPlay) {
+    // TODO
   }
 
   ///
@@ -343,11 +326,25 @@ export class AIPlayCardService {
   }
 
   private getBiggestCardOfSuit(cards: Card[], suit: Suit): Card {
-    // TODO
+    var cardsOfSuit = _.filter(cards, { suit: suit });
+
+    if(cardsOfSuit.length > 0){
+      return _.sortBy(cardsOfSuit, 'value')
+              .takeRight(1)[0];
+    }
+
+    return null;
   }
 
   private getLowestCardOfSuit(cards: Card[], suit: Suit): Card {
     // TODO
+    var cardsOfSuit = _.filter(cards, { suit: suit });
+
+    if(cardsOfSuit.length > 0){
+      return _.sortBy(cardsOfSuit, 'value')[0];
+    }
+
+    return null;
   }
 
   private getWinningOffsuitCard(set, player): Card {
