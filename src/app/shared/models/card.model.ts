@@ -16,6 +16,7 @@ export class Card {
     var _suit: Suit = this.suit;
 
     if(_value == CardValue.leftBauer){
+      _value = CardValue.jack;
       if (_suit == Suit.clubs) { _suit = Suit.spades; }
       else if (_suit == Suit.hearts) { _suit = Suit.diamonds; }
       else if (_suit == Suit.diamonds) { _suit = Suit.hearts; }

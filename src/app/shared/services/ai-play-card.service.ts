@@ -133,7 +133,7 @@ export class AIPlayCardService {
     // If I dont have a trump, still need to play a card, so find my biggest offsuit
     if (cardToPlay == null) {
       // Find my biggest offsuit
-      cardToPlay = this.getAceOrKingWithCoverOffsuit(player.Hand.Cards, this.winningBid(set).suit);
+      cardToPlay = this.getWinningOffsuitCard(set, player);
 
       if (cardToPlay == null) {
         // find card from my partners suit, and lead to that
@@ -141,7 +141,7 @@ export class AIPlayCardService {
 
         if (cardToPlay == null) {
           // Just play a random low card
-          cardToPlay = this.getLowCard(player.Hand.Cards, this.winningBid(set).suit);
+          cardToPlay = this.throwAwayTerribleCard(set, player);
         }
       }
     }
@@ -314,11 +314,12 @@ export class AIPlayCardService {
 
   private isItMyTeamsBid(set, player): boolean {
     // TODO
-
+    return false;
   }
 
   private getCardFromPartnerSuit(set: Set, player: SetPlayer): Card {
     // TODO
+    return null;
   }
 
   private currentRound(set: Set): PlayingRound {
@@ -349,37 +350,46 @@ export class AIPlayCardService {
 
   private getWinningOffsuitCard(set, player): Card {
     // TODO
+    return null;
   }
 
   private doIHaveTheRestOfTrump(set: Set, player: SetPlayer): boolean {
     // TODO
+    return false;
   }
 
   private areMyEnemiesOutOfSuit(set: Set, player: SetPlayer, suit: Suit): boolean {
     // TODO
+    return false;
   }
 
   private partnerHasTrump(set: Set, player: SetPlayer): boolean {
     // TODO
+    return false;
   }
 
   private getCardFromSuitsMyPartnerIsOutOf(set: Set, player: SetPlayer, lowestCardAvailable: boolean = false): Card {
     // TODO
+    return null;
   }
 
   private getCardFromSuitMyEnemiesBid(set: Set, player: SetPlayer, lowestCardAvailable: boolean = false): Card {
     // TODO
+    return null;
   }
 
   private throwAwayTerribleCard(set: Set, player: SetPlayer): Card {
     // TODO
+    return null;
   }
 
   private isOneOfMyEnemiesOutOfSuit(set: Set, player: SetPlayer, suit: Suit): boolean {
     // TODO
+    return false;
   }
 
   private doIHaveTheBestCardOfSuit(set: Set, player: SetPlayer, suit: Suit): boolean {
     // TODO
+    return false;
   }
 }

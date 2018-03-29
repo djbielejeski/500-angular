@@ -39,7 +39,7 @@ export class Hand implements IHandModel {
       .value();
 
     var joker = _.find(this.Cards, { value: CardValue.joker });
-    if (joker)
+    if (joker && joker.suit == Suit.none)
     {
       sortedCards.push(joker);
     }

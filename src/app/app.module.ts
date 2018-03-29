@@ -30,7 +30,9 @@ import * as services from '@app/shared/services';
   providers: [
     services.GameService,
     services.SetService,
-    services.AIBidService
+    services.AIBidService,
+    services.AIDiscardService,
+    services.AIPlayCardService
   ],
   bootstrap: [AppRootComponent]
 })
