@@ -47,7 +47,7 @@ export class SetService {
     }
     else{
       // player who won the last trick starts
-      return set.PlayingRounds[set.PlayingRounds.length - 1].winningPlayerId(set.PlayerWhoWonTheBid.Bid.suit);
+      return set.PlayingRounds[set.PlayingRounds.length - 2].winningPlayerId(set.PlayerWhoWonTheBid.Bid.suit);
     }
   }
 

@@ -28,19 +28,19 @@
      </div>
      <div class="card-3">
        {{ game.player3BiddingPosition }} | {{ game.player3.Bid.BidDisplay }}
-       <!--<div class="playing-card"></div>-->
+       <div *ngIf="game.activeSet.player3PlayedCard" class="playing-card" [ngClass]="game.activeSet.player3PlayedCard?.cssClass"></div>
      </div>
      <div class="card-2">
         {{ game.player2BiddingPosition }} | {{ game.player2.Bid.BidDisplay }}
-       <!--<div class="playing-card"></div>-->
+       <div *ngIf="game.activeSet.player2PlayedCard" class="playing-card" [ngClass]="game.activeSet.player2PlayedCard?.cssClass"></div>
      </div>
      <div class="card-4">
        {{ game.player4BiddingPosition }} | {{ game.player4.Bid.BidDisplay }}
-       <!--<div class="playing-card"></div>-->
+       <div *ngIf="game.activeSet.player4PlayedCard" class="playing-card" [ngClass]="game.activeSet.player4PlayedCard?.cssClass"></div>
      </div>
      <div class="card-1">
        {{ game.player1BiddingPosition }} | {{ game.player1.Bid.BidDisplay }}
-       <!--<div class="playing-card"></div>-->
+       <div *ngIf="game.activeSet.player1PlayedCard" class="playing-card" [ngClass]="game.activeSet.player1PlayedCard?.cssClass"></div>
      </div>
    </div>
    <div class="player-4">

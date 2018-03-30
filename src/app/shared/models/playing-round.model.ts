@@ -17,6 +17,7 @@ export class PlayingRound {
       return 0;
     }
 
+    debugger;
     // First see if there was trump played
     var trumpsPlayed = _.sortBy(_.filter(this.CardsPlayed, { suit: trumpSuit }), 'value');
 
@@ -24,13 +25,23 @@ export class PlayingRound {
       var highestTrump = trumpsPlayed[trumpsPlayed.length - 1];
       return this.PlayerPlayingOrder[_.indexOf(this.CardsPlayed, highestTrump)];
     }
-    else{
+    else {
       // The person who played the highest card of this suit
       var suit = this.CardsPlayed[0].suit;
-      var cardsOfThisSuitPlayed = _.sortBy(_.filter(this.CardsPlayed, { suit: suit }), 'value');
+      var cardsOfThisSuitPlayed = _.sortBy(_.filter(this.CardsPlayed, {suit: suit}), 'value');
 
       return this.PlayerPlayingOrder[_.indexOf(this.CardsPlayed, cardsOfThisSuitPlayed)];
     }
+  }
 
+  cardPlayedByPlayer(playerId: number): Card {
+    var playerIndex = this.PlayerPlayingOrder.indexOf(playerId);
+
+    if(this.CardsPlayed.length < playerIndex + 1){
+      return null;
+    }
+    else {
+      return this.CardsPlayed[playerIndex];
+    }
   }
 }

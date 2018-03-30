@@ -19,7 +19,7 @@ export class GameComponent implements OnInit {
   }
 
   newGame(){
-    this.game = this.gameService.StartGame();
+    this.game = this.gameService.StartGame(1);
     this.setService.startBidding(this.game.activeSet);
     if(this.game.activeSet.Redeal){
       console.warn("Redeal!");
@@ -35,6 +35,10 @@ export class GameComponent implements OnInit {
   }
 
   playCard(){
+    if(this.game.activeSet.CurrentPlayingRound.CardsPlayed.length == 4){
+        this.setService.startNewRound(this.game.activeSet);
+    }
+
     this.setService.playCard(this.game.activeSet);
   }
 

@@ -75,6 +75,19 @@ export class Set {
     return null;
   }
 
+  get player1PlayedCard(): Card {
+    return this.CurrentPlayingRound.cardPlayedByPlayer(this.Players[0].Id);
+  }
+  get player2PlayedCard(): Card {
+    return this.CurrentPlayingRound.cardPlayedByPlayer(this.Players[1].Id);
+  }
+  get player3PlayedCard(): Card {
+    return this.CurrentPlayingRound.cardPlayedByPlayer(this.Players[2].Id);
+  }
+  get player4PlayedCard(): Card {
+    return this.CurrentPlayingRound.cardPlayedByPlayer(this.Players[3].Id);
+  }
+
   get HighBid(): Bid {
     var maxBid: Bid = null;
 
