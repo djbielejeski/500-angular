@@ -4,10 +4,11 @@ import { HttpHeaders, HttpRequest } from '@angular/common/http';
 import {Card, CardValue, Game, Hand, Set, SetPlayer, Suit} from '@app/shared/models';
 import {AIBidService} from '@app/shared/services/ai-bid.service';
 import {AIDiscardService} from "@app/shared/services/ai-discard.service";
+import {AIPlayCardService} from '@app/shared/services/ai-play-card.service';
 
 @Injectable()
 export class SetService {
-  constructor(private aiBidService: AIBidService, private aiDiscardService: AIDiscardService){
+  constructor(private aiBidService: AIBidService, private aiDiscardService: AIDiscardService, private aiPlayCardService: AIPlayCardService){
 
   }
 
@@ -33,6 +34,31 @@ export class SetService {
     if(set.PlayerWhoWonTheBid.Hand.Cards.length != 10){
       console.error("Something went wrong in the discard.  Our card amount is off.");
     }
+  }
+
+  startNewRound(set: Set){
+    set.StartNewRound(this.getPlayerIdWhoWonLastRound(set));
+  }
+
+  private getPlayerIdWhoWonLastRound(set: Set): number {
+    if(set.PlayingRounds.length <= 1) {
+      // player who won the bid starts
+      return set.PlayerWhoWonTheBid.Id;
+    }
+    else{
+      // player who won the last trick starts
+      return set.PlayingRounds[set.PlayingRounds.length - 1].winningPlayerId(set.PlayerWhoWonTheBid.Bid.suit);
+    }
+  }
+
+  private getPlayerWhoseTurnItIs(set: Set): SetPlayer {
+    var player = _.find(set.Players, { Id: this.getPlayerIdWhoWonLastRound(set) });
+    return set.Players[(_.indexOf(set.Players, player) + set.CurrentPlayingRound.CardsPlayed.length) % 4];
+  }
+
+  playCard(set: Set){
+    // lets play a card from the active player
+    this.aiPlayCardService.playCard(set, this.getPlayerWhoseTurnItIs(set));
   }
 
   private logSetCardInfo(set: Set){

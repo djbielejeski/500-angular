@@ -28,11 +28,14 @@ export class GameComponent implements OnInit {
     else {
       this.setService.resolveBlind(this.game.activeSet);
       console.log(this.game);
+
+      // start the round!
+      this.setService.startNewRound(this.game.activeSet);
     }
   }
 
   playCard(){
-    //this.setService.play
+    this.setService.playCard(this.game.activeSet);
   }
 
 }

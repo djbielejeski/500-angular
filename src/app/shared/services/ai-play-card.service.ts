@@ -9,6 +9,7 @@ import {
 @Injectable()
 export class AIPlayCardService {
   playCard(set: Set, player: SetPlayer) {
+    debugger;
     var cardToPlay: Card = null;
     // 1st position - opening
     if(this.currentRound(set).CardsPlayed.length == 0){
@@ -118,8 +119,11 @@ export class AIPlayCardService {
     this.layCard(set, player, cardToPlay);
   }
 
-  layCard(set: Set, player: SetPlayer, cardToPlay) {
-    // TODO
+  layCard(set: Set, player: SetPlayer, cardToPlay: Card) {
+    player.Hand.Cards = _.filter(player.Hand.Cards, (card: Card) => card != cardToPlay);
+    set.CurrentPlayingRound.CardsPlayed.push(cardToPlay);
+
+    console.log(set.CurrentPlayingRound.CardsPlayed);
   }
 
   ///
@@ -330,8 +334,7 @@ export class AIPlayCardService {
     var cardsOfSuit = _.filter(cards, { suit: suit });
 
     if(cardsOfSuit.length > 0){
-      return _.sortBy(cardsOfSuit, 'value')
-              .takeRight(1)[0];
+      return _.takeRight(_.sortBy(cardsOfSuit, 'value'), 1)[0];
     }
 
     return null;

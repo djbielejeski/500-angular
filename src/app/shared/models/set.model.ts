@@ -66,7 +66,13 @@ export class Set {
   }
 
   get CurrentPlayingRound(): PlayingRound {
-    return _.takeRight(this.PlayingRounds, 1);
+    var round = _.takeRight(this.PlayingRounds, 1);
+
+    if(round.length > 0){
+      return round[0];
+    }
+
+    return null;
   }
 
   get HighBid(): Bid {
@@ -114,7 +120,7 @@ export class Set {
 
   }
 
-  StartNewRound() {
+  StartNewRound(playerIdWhoLeads: number) {
     this.PlayingRounds.push(new PlayingRound(this.PlayerWhoWonTheBid.Id, this.BuildPlayingOrder(this.PlayerWhoWonTheBid.Id)));
   }
 
@@ -229,10 +235,10 @@ export class Set {
 
   private BuildPlayingOrder(leadingPlayerId: number): number[] {
     var playingOrder: number[] = [];
-    var firstPlayer: SetPlayer = _.find(this.Players, { Id: leadingPlayerId });
-    var nextPlayerPosition = firstPlayer.SeatingPosition;
+    var leadPlayer: SetPlayer = _.find(this.Players, { Id: leadingPlayerId });
+    var nextPlayerPosition = leadPlayer.SeatingPosition;
 
-    playingOrder.push(firstPlayer.Id);
+    playingOrder.push(leadPlayer.Id);
 
     while (playingOrder.length < 4)
     {
