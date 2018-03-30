@@ -29,6 +29,9 @@ export class AIBidService {
     }
 
     // Save the bid
+    if(player == null){
+      debugger;
+    }
     player.Bid = bid;
   }
 

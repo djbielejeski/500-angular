@@ -80,6 +80,7 @@ $hover-height: 20px;
         &.playing-card:nth-child(#{$i}){
           @if $i > 1 {
             top: percentage(($i - 1) * 0.08);
+            z-index: 1000 + $i;
           }
         }
       }

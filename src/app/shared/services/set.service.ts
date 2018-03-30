@@ -15,7 +15,10 @@ export class SetService {
     while(!set.BiddingComplete) {
       this.aiBidService.getBid(set);
     }
-    this.fixAllCardsForNewTrumpSuit(set);
+
+    if(!set.Redeal) {
+      this.fixAllCardsForNewTrumpSuit(set);
+    }
   }
 
   resolveBlind(set: Set){

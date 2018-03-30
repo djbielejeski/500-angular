@@ -4,159 +4,124 @@ import { HttpHeaders, HttpRequest } from '@angular/common/http';
 import {
   Bid, Bids, Game, Set, SetPlayer, Position, HandStrengthHelpers, BidValue, Suits, OffsuitStrengthHelpers,
   RaiseStrength,
-  RaiseStrengthHelpers, Card, CardValue
+  RaiseStrengthHelpers, Card, CardValue, Suit
 } from '@app/shared/models';
 
 @Injectable()
 export class AIDiscardService {
   discard(set: Set){
     console.log("-------Starting Discard-------");
-    var potentialThrowAwayCards = _.filter(set.PlayerWhoWonTheBid.Hand.Cards, (card: Card) => card.suit != set.PlayerWhoWonTheBid.Bid.suit);
-    console.log("Potential Throwaway cards: ",  potentialThrowAwayCards);
-    if (potentialThrowAwayCards.length <= 5){
-      debugger;
-      // Remove the potential throw away cards
-      set.PlayerWhoWonTheBid.Hand.Cards = _.pull(set.PlayerWhoWonTheBid.Hand.Cards.concat, potentialThrowAwayCards);
-      // Keep the top 10 top trump
-      set.PlayerWhoWonTheBid.Hand.Cards = _.takeRight(_.sortBy(_.filter(set.PlayerWhoWonTheBid.Hand.Cards, { suit: set.PlayerWhoWonTheBid.Bid.suit}), 'value'), 10);
+
+    // My new hand is all the trump cards to start.
+    var newHand: Card[] = _.takeRight(_.sortBy(_.filter(set.PlayerWhoWonTheBid.Hand.Cards, { suit: set.PlayerWhoWonTheBid.Bid.suit}), 'value'), 10);
+
+    if(newHand.length < 10){
+      var nonTrumpCards: Card[] = _.filter(set.PlayerWhoWonTheBid.Hand.Cards, (card: Card) => card.suit != set.PlayerWhoWonTheBid.Bid.suit);
+      var cardsNeeded: number = 10 - newHand.length;
+      var enemiesBidsSuits: Suit[] = _.uniq(_.map(_.filter(set.Players, (player: SetPlayer) => player.TeamId != set.PlayerWhoWonTheBid.TeamId && player.Bid != Bids.Pass()), (x: SetPlayer) => x.Bid.suit));
+
+      newHand = newHand.concat(this.getBestNonTrumpCards(nonTrumpCards, cardsNeeded, enemiesBidsSuits))
     }
-    else {
-      var cardsToKeep = _.filter(set.PlayerWhoWonTheBid.Hand.Cards, { suit: set.PlayerWhoWonTheBid.Bid.suit });
-      var cardsToThrowAway: Card[] = [];
 
-      debugger;
-      // Keep our best offsuit (Aces + Kings + Queens + Jacks)
-      var bestOffsuit = this.saveOffsuitAcesOnDown(potentialThrowAwayCards);
-      potentialThrowAwayCards = _.pull(potentialThrowAwayCards, bestOffsuit);
-      cardsToKeep = cardsToKeep.concat(bestOffsuit);
+    set.Blind.Cards = _.filter(set.PlayerWhoWonTheBid.Hand.Cards, (card: Card) => newHand.indexOf(card) === -1);
+    set.PlayerWhoWonTheBid.Hand.Cards = newHand;
+    set.PlayerWhoWonTheBid.Hand.Sort();
 
-      if (cardsToKeep.length <= 8) {
-        // Keep kings with cover if we have two spots or more left.
-        var kingsWithCover = this.getKingsWithCover(potentialThrowAwayCards);
-        potentialThrowAwayCards = _.pull(potentialThrowAwayCards, kingsWithCover);
-        cardsToKeep = cardsToKeep.concat(kingsWithCover);
-      }
-
-
-      if(cardsToKeep.length < 10){
-        // Short Suit myself
-        cardsToThrowAway = cardsToThrowAway.concat(this.shortSuit(set, cardsToKeep, potentialThrowAwayCards));
-        potentialThrowAwayCards = _.pull(potentialThrowAwayCards, cardsToThrowAway);
-      }
-
-      if(cardsToKeep.length < 10){
-        // Take the best of the worst.
-      }
-
-
-      console.log("Keeping", cardsToKeep);
-      console.log("Undetermined: ", potentialThrowAwayCards);
-      console.log("Thrown Away: ", cardsToThrowAway);
-
-      set.PlayerWhoWonTheBid.Hand.Cards = cardsToKeep;
-      set.Blind.Cards = cardsToThrowAway;
-      //
-    }
     console.log("-------Ending Discard-------");
   }
 
-  private saveOffsuitAcesOnDown(cards: Card[]): Card[] {
+  private getBestNonTrumpCards(nonTrumpCards: Card[], cardsNeeded: number, enemiesBidsSuits: Suit[]): Card[] {
+
+    // Aces are priority number 1
     var cardsToKeep: Card[] = [];
 
-    // Most cards I can save is cards.length - 5
-    var aces = _.filter(cards, { value: CardValue.ace });
+    var aces = _.filter(nonTrumpCards, { value: CardValue.ace });
+    if(aces.length >= cardsNeeded){
+      return _.take(aces, cardsNeeded);
+    }
 
-    // Keep aces + kings + queens + jacks
-    _.each(aces, (ace: Card) => {
-      if(cardsToKeep.length <= cards.length - 5) {
-        cardsToKeep.push(ace);
+    if(aces.length > 0){
+      cardsToKeep = cardsToKeep.concat(aces);
+      nonTrumpCards = _.filter(nonTrumpCards, (card: Card) => aces.indexOf(card) === -1);
 
-        var kingOfThisSuit = _.find(cards, {suit: ace.suit, value: CardValue.king});
-        if(cardsToKeep.length <= cards.length - 5 && kingOfThisSuit){
+      // Backing kings for aces are priority 2
+      _.each(aces, (ace: Card) => {
+        var kingOfThisSuit = _.find(nonTrumpCards, {suit: ace.suit, value: CardValue.king});
+        if(kingOfThisSuit && cardsNeeded - cardsToKeep.length > 0){
           cardsToKeep.push(kingOfThisSuit);
+          nonTrumpCards = _.filter(nonTrumpCards, (card: Card) => card != kingOfThisSuit);
 
-          var queenOfThisSuit = _.find(cards, {suit: ace.suit, value: CardValue.queen});
-          if(cardsToKeep.length <= cards.length - 5 && queenOfThisSuit){
+          var queenOfThisSuit = _.find(nonTrumpCards, {suit: ace.suit, value: CardValue.queen});
+          if (queenOfThisSuit && cardsNeeded - cardsToKeep.length > 0) {
             cardsToKeep.push(queenOfThisSuit);
+            nonTrumpCards = _.filter(nonTrumpCards, (card: Card) => card != queenOfThisSuit);
+          }
 
-            var jackOfThisSuit = _.find(cards, {suit: ace.suit, value: CardValue.jack});
-            if(cardsToKeep.length <= cards.length - 5 && jackOfThisSuit){
-              cardsToKeep.push(jackOfThisSuit);
-            }
+          // Add the rest of this suit if we have it (we have the king and the ace, so the rest are better than kings with cover or other misc offsuit).
+          var cardsOfThisSuitLeft = _.filter(nonTrumpCards, {suit: ace.suit});
+          if (cardsOfThisSuitLeft.length > 0 && cardsNeeded - cardsToKeep.length > 0) {
+            var theCardsOfThisSuitWeAreKeeping = _.takeRight(_.sortBy(cardsOfThisSuitLeft, 'value'), cardsNeeded - cardsToKeep.length);
+            nonTrumpCards = _.filter(nonTrumpCards, (card: Card) => theCardsOfThisSuitWeAreKeeping.indexOf(card) === -1);
+            cardsToKeep = cardsToKeep.concat(theCardsOfThisSuitWeAreKeeping);
           }
         }
-      }
-    });
+      });
+    }
 
-    // See if we have more items for these offsuit suits.
-    _.each(aces, (ace: Card) => {
-      if(cardsToKeep.length <= cards.length - 5) {
-        // How many cards of this suit did I keep?
-        var cardsOfThisSuitKept = _.filter(cardsToKeep, {suit: ace.suit});
-
-        if (cardsOfThisSuitKept.length >= 2) {
-          // How many cards of this suit do I have left?
-          var cardsOfThisSuitLeft = _.filter(cards, (card: Card) => {
-            return cardsToKeep.indexOf(card) == -1 && card.suit == ace.suit;
-          });
-
-          // take as many of these as possible. ( we have the ace + king of this suit )
-          cardsToKeep = cardsToKeep.concat(_.takeRight(_.sortBy(cardsOfThisSuitLeft, 'value'), (cards.length - 5) - cardsToKeep.length));
-        }
-      }
-    });
-
-    return cardsToKeep;
-  }
-
-  private getKingsWithCover(cards: Card[]): Card[] {
-    var cardsToKeep: Card[] = [];
-
-    // Most cards I can save is cards.length - 5
-    var kings = _.filter(cards, { value: CardValue.king });
+    // Kings with cover is priority 3
+    var kings = _.filter(nonTrumpCards, { value: CardValue.king });
 
     _.each(kings, (king: Card) => {
-      var cardsOfThisSuit = _.filter(cards, (card: Card) => {
+      var cardsOfThisSuit = _.filter(nonTrumpCards, (card: Card) => {
         return card.value != CardValue.king && card.suit == king.suit;
       });
 
-      if (cardsOfThisSuit.length > 0 && cardsToKeep.length <= cards.length - 5){
+      if (cardsOfThisSuit.length > 0 && cardsToKeep.length <= nonTrumpCards.length - 5){
         // grab the king and the highest covercard
         cardsToKeep.push(king);
-        cardsToKeep.push(_.sortBy(cardsOfThisSuit, 'value')[cardsOfThisSuit.length - 1]);
+        var cardToKeepToCoverKing = _.sortBy(cardsOfThisSuit, 'value')[cardsOfThisSuit.length - 1];
+        cardsToKeep.push(cardToKeepToCoverKing);
+
+        nonTrumpCards = _.filter(nonTrumpCards, (card: Card) => card != king && card != cardToKeepToCoverKing);
       }
     });
 
-    return cardsToKeep;
-  }
-
-  private shortSuit(set: Set, cardsToKeep: Card[], potentialThrowAwayCards: Card[]): Card[] {
-
-    var cardsToThrowAway: Card[] = [];
-
-    var totalCardsWeNeedToGetRidOf = potentialThrowAwayCards.length - 5;
-
-    // Get the enemies bid's
-    var enemies = _.filter(set.Players, (player: SetPlayer) => player.TeamId != set.PlayerWhoWonTheBid.TeamId);
-
-    _.each(enemies, (enemy: SetPlayer) => {
-      if(enemy.Bid != Bids.Pass()){
+    // short suiting is priority 4
+    if(cardsNeeded - cardsToKeep.length > 0) {
+      var cardsToThrowAway: Card[] = [];
+      // see if we can shortsuit whatever our enemies bid.
+      _.each(enemiesBidsSuits, (enemyBidSuit: Suit) => {
         // see if we can shortsuit this entire suit
-        var throwawayCardsOfThisEnemiesSuit = _.filter(potentialThrowAwayCards, { suit: enemy.Bid.suit });
+        var throwawayCardsOfThisEnemiesSuit = _.filter(nonTrumpCards, {suit: enemyBidSuit});
 
-        if(_.filter(cardsToKeep, { suit: enemy.Bid.suit }).length == 0 &&
-          throwawayCardsOfThisEnemiesSuit.length <= totalCardsWeNeedToGetRidOf){
+        if (_.filter(cardsToKeep, {suit: enemyBidSuit}).length == 0 &&
+          throwawayCardsOfThisEnemiesSuit.length <= cardsNeeded - cardsToKeep.length) {
           // looks like we can get rid of this whole suit.
           cardsToThrowAway = cardsToThrowAway.concat(throwawayCardsOfThisEnemiesSuit);
+
+          nonTrumpCards = _.filter(nonTrumpCards, (card: Card) => cardsToThrowAway.indexOf(card) === -1);
         }
+      });
+
+      if (cardsToThrowAway.length < cardsNeeded - cardsToKeep.length) {
+        // we still have more to dump
+
+        var suitsIAlreadyHaveInMyHand = _.uniq(_.map(cardsToKeep, 'suit'));
+        var suitsIHaveAvailableToDiscard = _.uniq(_.map(nonTrumpCards, 'suit'));
+
+        _.each(suitsIHaveAvailableToDiscard, (suit: Suit) => {
+          if (cardsNeeded - cardsToKeep.length > 0 && suitsIAlreadyHaveInMyHand.indexOf(suit) != -1) {
+            // we area already holding this suit, lets keep the cards from this suit.
+            var cardsToKeepFromThisSuit = _.takeRight(_.sortBy(_.filter(nonTrumpCards, {suit: suit}), 'value'), cardsNeeded - cardsToKeep.length);
+            cardsToKeep = cardsToKeep.concat(cardsToKeepFromThisSuit);
+            nonTrumpCards = _.filter(nonTrumpCards, (card: Card) => cardsToKeepFromThisSuit.indexOf(card) != -1);
+          }
+        });
+
+        // Dump cards of
       }
-    });
-
-    if (cardsToThrowAway.length <= totalCardsWeNeedToGetRidOf){
-      // See if we can shortsuit any other suits
-
     }
 
-    return cardsToThrowAway;
+    return cardsToKeep;
   }
 }

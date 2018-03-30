@@ -45,7 +45,7 @@ export class Set
     var realBids: Bid[] = _(this.Players)
       .filter(x => x.Bid != null)
       .map(x => x.Bid)
-      .sortBy(x => x.value)
+      .sortBy(x => x.Points)
       .value();
 
     if (realBids.length == 4 && _.find(realBids, (bid: Bid) => (bid.value > BidValue.six))) {
@@ -60,7 +60,7 @@ export class Set
   }
 
   get BiddingComplete(): boolean {
-    return this.PlayerWhoWonTheBid != null;
+    return this.Bids.length == 4;
   }
 
   get CurrentPlayingRound(): PlayingRound {
