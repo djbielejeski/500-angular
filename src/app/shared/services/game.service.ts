@@ -4,8 +4,9 @@ import {Game, Set} from '@app/shared/models';
 
 @Injectable()
 export class GameService {
-  StartGame(): Game {
-    var game: Game = new Game();
+  StartGame(testCaseId: number = 0): Game {
+    // Pass in a test case id here to get the same test case over and over.
+    var game: Game = new Game(testCaseId);
     game.SetupGame();
 
     var startingSet: Set = new Set();

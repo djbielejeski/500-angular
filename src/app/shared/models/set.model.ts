@@ -6,10 +6,9 @@ import {Card, Cards} from '@app/shared/models/card.model';
 import {Bid, Bids} from '@app/shared/models/bid.model';
 import {GamePlayer} from '@app/shared/models/game-player.model';
 import {PlayingRound} from '@app/shared/models/playing-round.model';
-import {BidValue} from '@app/shared/models/types.enums';
+import {BidValue, CardValue, Suit} from '@app/shared/models/types.enums';
 
-export class Set
-{
+export class Set {
   Players: SetPlayer[] = [];
   Id: number;
   GameId: number;
@@ -21,6 +20,9 @@ export class Set
   PointsWon: number;
   LosingTeamId: number;
   PointsLost: number;
+  DiscardComplete: boolean = false;
+
+  private TestCaseId: number = 0;
 
   get CurrentPlayersBidId(): number {
 
@@ -107,7 +109,9 @@ export class Set
   // Helper functions
   AttachToGame(game: Game) {
     this.GameId = game.Id;
+    this.TestCaseId = game.TestCaseId;
     this.BuildBiddingOrder(game.Players);
+
   }
 
   StartNewRound() {
@@ -117,7 +121,12 @@ export class Set
   Deal() {
     // Deal in the standard 500 style, 3 - 4 - 3
     // Blind is dealt 3 - 2 - 0
-    var deck = Cards.NewShuffledDeck();
+    var deck = Cards.NewShuffledDeck(this.TestCaseId);
+
+    _.each(deck, (card: Card) => {
+      console.log("deck.push(new Card(Suit." + Suit[card.suit] + ", CardValue." + CardValue[card.value] + "));");
+    });
+
 
     // 3
     deck = this.AddCards(3, this.Players[0].Hand, deck);
@@ -174,27 +183,45 @@ export class Set
     _.each(players, (player: GamePlayer) => {
       setPlayers.push(new SetPlayer(player));
     });
-
     this.Players = setPlayers;
-
-    // Build the bidding order
     var biddingOrder: number[] = [];
-    var startingBidder: number = this.RandomPlayerId(players);
-    var firstBidder: GamePlayer = _.find(players, { Id: startingBidder });
-    var nextBidderPosition: number = firstBidder.SeatingPosition;
 
-    biddingOrder.push(firstBidder.Id);
+    // Test Case check
+    var startingIndex = -1;
+    switch(this.TestCaseId) {
+      case 1: startingIndex = 2; break;
+      case 2: startingIndex = 1; break;
+      case 3: startingIndex = 2; break;
+      case 4: startingIndex = 0; break;
+      case 5: startingIndex = 0; break;
+    }
 
-    while (biddingOrder.length < 4)
-    {
-      nextBidderPosition++;
-      if (nextBidderPosition > 4)
+    if(startingIndex >= 0){
+      biddingOrder.push(players[startingIndex % 4].Id);
+      biddingOrder.push(players[(startingIndex + 1) % 4].Id);
+      biddingOrder.push(players[(startingIndex + 2) % 4].Id);
+      biddingOrder.push(players[(startingIndex + 3) % 4].Id);
+    }
+    else {
+      // Random bidding order
+      // Build the bidding order
+      var startingBidder: number = this.RandomPlayerId(players);
+      var firstBidder: GamePlayer = _.find(players, { Id: startingBidder });
+      var nextBidderPosition: number = firstBidder.SeatingPosition;
+
+      biddingOrder.push(firstBidder.Id);
+
+      while (biddingOrder.length < 4)
       {
-        nextBidderPosition = 1;
-      }
+        nextBidderPosition++;
+        if (nextBidderPosition > 4)
+        {
+          nextBidderPosition = 1;
+        }
 
-      var nextBidder: GamePlayer = _.find(players, { SeatingPosition: nextBidderPosition });
-      biddingOrder.push(nextBidder.Id);
+        var nextBidder: GamePlayer = _.find(players, { SeatingPosition: nextBidderPosition });
+        biddingOrder.push(nextBidder.Id);
+      }
     }
 
     this.PlayerBiddingOrder = biddingOrder;

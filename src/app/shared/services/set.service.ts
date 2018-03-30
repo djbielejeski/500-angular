@@ -29,6 +29,10 @@ export class SetService {
 
     // discard 5 cards
     this.aiDiscardService.discard(set);
+
+    if(set.PlayerWhoWonTheBid.Hand.Cards.length != 10){
+      console.error("Something went wrong in the discard.  Our card amount is off.");
+    }
   }
 
   private logSetCardInfo(set: Set){

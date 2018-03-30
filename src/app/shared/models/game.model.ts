@@ -17,9 +17,12 @@ export class Game {
   Team2: Team;
   WinningTeamId: number;
 
-  constructor(){
+  TestCaseId: number = 0;
+
+  constructor(testCaseId: number = 0){
    this.Team1 = new Team(this.team1Id);
    this.Team2 = new Team(this.team2Id);
+   this.TestCaseId = testCaseId;
   }
 
   SetupGame(){

@@ -15,10 +15,15 @@ export class GameComponent implements OnInit {
   }
 
   ngOnInit(){
+    this.newGame();
+  }
+
+  newGame(){
     this.game = this.gameService.StartGame();
     this.setService.startBidding(this.game.activeSet);
     if(this.game.activeSet.Redeal){
-      console.log("redeal!");
+      console.warn("Redeal!");
+      this.newGame();
     }
     else {
       this.setService.resolveBlind(this.game.activeSet);

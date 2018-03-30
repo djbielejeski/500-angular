@@ -22,6 +22,7 @@
      </div>
    </div>
    <div class="card-area">
+     <!--<div class="blind" *ngIf="game.blindCards && !game.activeSet.DiscardComplete">-->
      <div class="blind" *ngIf="game.blindCards">
        <div *ngFor="let card of game.blindCards" class="playing-card" [ngClass]="card.cssClass"></div>
      </div>
@@ -49,7 +50,8 @@
    </div>
  </div>
  <div class="player-1">
-   <button class="btn btn-success btn-sm" type="button" (click)="playCard()">Play Card</button>
+   <button class="btn btn-success btn-sm" type="button" (click)="newGame()">New Game</button>
+   <button class="btn btn-warning btn-sm" type="button" (click)="playCard()">Play Card</button>
    <div class="player-hand-horizontal" [ngClass]="{ 'has-blind': game.player1.Hand.Cards.length > 10 }">
      <div *ngFor="let card of game.player1.Hand.Cards" class="playing-card" [ngClass]="card.cssClass"></div>
    </div>
