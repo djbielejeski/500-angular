@@ -125,7 +125,35 @@ export class Set {
     }
   }
 
+  get AllPlayedCards(): Card[] {
+    // Don't count cards played in this round as those are still active.
+    return _.flatten(_.map(_.take(this.PlayingRounds, this.PlayingRounds.length - 1), (playingRound: PlayingRound) => playingRound.CardsPlayed));
+  }
+
+  get TrumpSuit(): Suit {
+    if(this.PlayerWhoWonTheBid && this.PlayerWhoWonTheBid.Bid) {
+      return this.PlayerWhoWonTheBid.Bid.suit;
+    }
+
+    return Suit.none;
+  }
+
   // Helper functions
+  GetCardsPlayedByPlayer(playerId: number): Card[] {
+    var cards: Card[] = [];
+
+    _.each(this.PlayingRounds, (round: PlayingRound) => {
+      var indexOfPlayer = _.indexOf(round.PlayerPlayingOrder, playerId);
+      var card = round.CardsPlayed.length > indexOfPlayer ? null : round.CardsPlayed[indexOfPlayer];
+
+      if (card) {
+        cards.push(card);
+      }
+    });
+
+    return cards;
+  }
+
   AttachToGame(game: Game) {
     this.GameId = game.Id;
     this.TestCaseId = game.TestCaseId;
@@ -134,7 +162,7 @@ export class Set {
   }
 
   StartNewRound(playerIdWhoLeads: number) {
-    this.PlayingRounds.push(new PlayingRound(this.PlayerWhoWonTheBid.Id, this.BuildPlayingOrder(this.PlayerWhoWonTheBid.Id)));
+    this.PlayingRounds.push(new PlayingRound(playerIdWhoLeads, this.BuildPlayingOrder(playerIdWhoLeads), this.TrumpSuit));
   }
 
   Deal() {

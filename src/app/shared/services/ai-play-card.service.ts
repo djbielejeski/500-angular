@@ -107,6 +107,7 @@ export class AIPlayCardService {
     player.Hand.Cards = _.filter(player.Hand.Cards, (card: Card) => card != cardToPlay);
     set.CurrentPlayingRound.CardsPlayed.push(cardToPlay);
 
+    console.log(set);
     console.log(set.CurrentPlayingRound.CardsPlayed);
   }
 
@@ -125,7 +126,7 @@ export class AIPlayCardService {
 
       if (cardToPlay == null) {
         // find card from my partners suit, and lead to that
-        cardToPlay = this.getCardFromPartnerSuit(set, player);
+        cardToPlay = this.getCardFromPartnerBidSuit(set, player);
 
         if (cardToPlay == null) {
           // Just play a random low card
@@ -140,32 +141,6 @@ export class AIPlayCardService {
   private FirstCard(set: Set, player: SetPlayer): Card {
     var cardToPlay: Card = null;
 
-    // First check if we have a winner of this suit
-    if (this.doIHaveTheBestCardOfSuit(set, player, this.suitThatWasLed(set))){
-      cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, this.suitThatWasLed(set));
-    }
-    else{
-      cardToPlay = this.getLowestCardOfSuit(player.Hand.Cards, this.suitThatWasLed(set));
-
-      // See if I have to follow suit.
-      if (cardToPlay == null) {
-        // We can't follow suit, see if we can trump in
-        var lowestTrumpCardIHave = this.getLowestCardOfSuit(player.Hand.Cards, set.PlayerWhoWonTheBid.Bid.suit);
-
-        if (this.suitThatWasLed(set) != set.PlayerWhoWonTheBid.Bid.suit && lowestTrumpCardIHave != null) {
-          cardToPlay = lowestTrumpCardIHave;
-        }
-        else{
-          // trump was led or I can't trump in, get the worst card we have in our hand
-          cardToPlay = this.getWorstCard(set, player);
-        }
-      }
-    }
-
-    return cardToPlay;
-    
-    var cardToPlay: Card = null;
-
     //Am I the one who is trying to make the bid?
     if(this.isItMyTeamsBid(set, player)){
       // it is our bid.
@@ -178,7 +153,7 @@ export class AIPlayCardService {
         if (cardToPlay == null) {
           // I (or my partner) have the rest of the trump, but I don't have a winning card
           // play into my partners void (if he has trump) or the suit which he bid.
-          cardToPlay = this.getCardFromPartnerSuit(set, player);
+          cardToPlay = this.getCardFromPartnerBidSuit(set, player);
 
           if(cardToPlay == null) {
             // Check if my partner has trump, and if he does, if I know what suit he is out of
@@ -186,7 +161,7 @@ export class AIPlayCardService {
             // If none of that works, then I throw a terrible card
             if(this.partnerHasTrump(set, player)){
               // The "true" is for getting the lowest card of that suit
-              cardToPlay = this.getCardFromSuitsMyPartnerIsOutOf(set, player, true);
+              cardToPlay = this.getCardFromSuitsMyPartnerIsOutOf(set, player);
 
               if(cardToPlay == null){
                 // I don't know what suits he is out of, or I don't have any of that suit,
@@ -194,7 +169,7 @@ export class AIPlayCardService {
                 // my partner probably tried to short-suit that suit
 
                 // The "true" is for getting the lowest card of that suit
-                cardToPlay = this.getCardFromSuitMyEnemiesBid(set, player, true);
+                cardToPlay = this.getLowestCardFromSuitMyEnemiesBid(set, player);
               }
             }
             else {
@@ -235,7 +210,7 @@ export class AIPlayCardService {
 
               if (cardToPlay == null){
                 //we were not able to play a winning offsuit card
-                cardToPlay = this.getCardFromPartnerSuit(set, player);
+                cardToPlay = this.getCardFromPartnerBidSuit(set, player);
 
                 if (cardToPlay == null){
                   // I don't have any cards from my partners bid to throw, default to throwing a bad card.
@@ -270,7 +245,7 @@ export class AIPlayCardService {
       if(cardToPlay == null){
 
         // Try to pass to our partner
-        cardToPlay = this.getCardFromPartnerSuit(set, player);
+        cardToPlay = this.getCardFromPartnerBidSuit(set, player);
 
         if (cardToPlay == null) {
           // Can't pass to our partner, play a bad card.
@@ -290,18 +265,18 @@ export class AIPlayCardService {
     var cardToPlay: Card = null;
 
     // First check if we have a winner of this suit
-    if (this.doIHaveTheBestCardOfSuit(set, player, this.suitThatWasLed(set))){
-      cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, this.suitThatWasLed(set));
+    if (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed)){
+      cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards,set.CurrentPlayingRound.SuitLed);
     }
     else{
-      cardToPlay = this.getLowestCardOfSuit(player.Hand.Cards, this.suitThatWasLed(set));
+      cardToPlay = this.getLowestCardOfSuit(player.Hand.Cards, set.CurrentPlayingRound.SuitLed);
 
       // See if I have to follow suit.
       if (cardToPlay == null) {
         // We can't follow suit, see if we can trump in
-        var lowestTrumpCardIHave = this.getLowestCardOfSuit(player.Hand.Cards, set.PlayerWhoWonTheBid.Bid.suit);
+        var lowestTrumpCardIHave = this.getLowestCardOfSuit(player.Hand.Cards, set.TrumpSuit);
 
-        if (this.suitThatWasLed(set) != set.PlayerWhoWonTheBid.Bid.suit && lowestTrumpCardIHave != null) {
+        if (set.CurrentPlayingRound.SuitLed != set.TrumpSuit && lowestTrumpCardIHave != null) {
           cardToPlay = lowestTrumpCardIHave;
         }
         else{
@@ -318,18 +293,18 @@ export class AIPlayCardService {
     var cardToPlay: Card = null;
 
     // First check if we have a winner of this suit
-    if (this.doIHaveTheBestCardOfSuit(set, player, this.suitThatWasLed(set))){
-      cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, this.suitThatWasLed(set));
+    if (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed)){
+      cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, set.CurrentPlayingRound.SuitLed);
     }
     else{
-      cardToPlay = this.getLowestCardOfSuit(player.Hand.Cards, this.suitThatWasLed(set));
+      cardToPlay = this.getLowestCardOfSuit(player.Hand.Cards, set.CurrentPlayingRound.SuitLed);
 
       // See if I have to follow suit.
       if (cardToPlay == null) {
         // We can't follow suit, see if we can trump in
-        var lowestTrumpCardIHave = this.getLowestCardOfSuit(player.Hand.Cards, set.PlayerWhoWonTheBid.Bid.suit);
+        var lowestTrumpCardIHave = this.getLowestCardOfSuit(player.Hand.Cards, set.TrumpSuit);
 
-        if (this.suitThatWasLed(set) != set.PlayerWhoWonTheBid.Bid.suit && lowestTrumpCardIHave != null) {
+        if (set.CurrentPlayingRound.SuitLed != set.TrumpSuit && lowestTrumpCardIHave != null) {
           cardToPlay = lowestTrumpCardIHave;
         }
         else{
@@ -346,18 +321,18 @@ export class AIPlayCardService {
     var cardToPlay: Card = null;
 
     // First check if we have a winner of this suit
-    if (this.doIHaveTheBestCardOfSuit(set, player, this.suitThatWasLed(set))){
-      cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, this.suitThatWasLed(set));
+    if (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed)){
+      cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, set.CurrentPlayingRound.SuitLed);
     }
     else{
-      cardToPlay = this.getLowestCardOfSuit(player.Hand.Cards, this.suitThatWasLed(set));
+      cardToPlay = this.getLowestCardOfSuit(player.Hand.Cards, set.CurrentPlayingRound.SuitLed);
 
       // See if I have to follow suit.
       if (cardToPlay == null) {
         // We can't follow suit, see if we can trump in
-        var lowestTrumpCardIHave = this.getLowestCardOfSuit(player.Hand.Cards, set.PlayerWhoWonTheBid.Bid.suit);
+        var lowestTrumpCardIHave = this.getLowestCardOfSuit(player.Hand.Cards, set.TrumpSuit);
 
-        if (this.suitThatWasLed(set) != set.PlayerWhoWonTheBid.Bid.suit && lowestTrumpCardIHave != null) {
+        if (set.CurrentPlayingRound.SuitLed != set.TrumpSuit && lowestTrumpCardIHave != null) {
           cardToPlay = lowestTrumpCardIHave;
         }
         else{
@@ -373,20 +348,41 @@ export class AIPlayCardService {
   ///
   /// Helper functions
   ///
-  private suitThatWasLed(set: Set): Suit {
-    return set.CurrentPlayingRound.CardsPlayed[0].suit;
-  }
   private winningBid(set: Set): Bid {
     return set.PlayerWhoWonTheBid.Bid;
   }
 
-  private isItMyTeamsBid(set, player): boolean {
-    // TODO
-    return false;
+  private isItMyTeamsBid(set: Set, player: SetPlayer): boolean {
+    var partner = this.getPartner(set, player);
+
+    return set.PlayerWhoWonTheBid.Id == player.Id ||
+           set.PlayerWhoWonTheBid.Id == partner.Id;
   }
 
-  private getCardFromPartnerSuit(set: Set, player: SetPlayer): Card {
-    // TODO
+  private getPartner(set: Set, player: SetPlayer) : SetPlayer {
+    return set.Players[(_.indexOf(set.Players, { Id: player.Id }) + 2) % 4];
+  }
+
+
+  private getEnemies(set: Set, player: SetPlayer): SetPlayer[] {
+    return [
+      set.Players[(_.indexOf(set.Players, { Id: player.Id }) + 1) % 4],
+      set.Players[(_.indexOf(set.Players, { Id: player.Id }) + 3) % 4],
+    ];
+  }
+
+  private getEnemyIds(set: Set, player: SetPlayer): number[] {
+    return _.map(this.getEnemies(set, player), 'Id');
+  }
+
+
+  private getCardFromPartnerBidSuit(set: Set, player: SetPlayer): Card {
+    var partner = this.getPartner(set, player);
+
+    if (partner.Bid != Bids.Pass()){
+      return this.getLowestCardOfSuit(player.Hand.Cards, partner.Bid.suit);
+    }
+
     return null;
   }
 
@@ -405,7 +401,6 @@ export class AIPlayCardService {
   }
 
   private getLowestCardOfSuit(cards: Card[], suit: Suit): Card {
-    // TODO
     var cardsOfSuit = _.filter(cards, { suit: suit });
 
     if(cardsOfSuit.length > 0){
@@ -415,66 +410,132 @@ export class AIPlayCardService {
     return null;
   }
 
-  private getWinningOffsuitCard(set, player): Card {
-    // TODO
+  private getWinningOffsuitCard(set: Set, player: SetPlayer): Card {
+    var allPlayedCards = set.AllPlayedCards;
+
+    var winningOffsuitCards: Card[] = [];
+    var suitsIHaveThatAreNotTrump = _.map(_.filter(player.Hand.Cards, (card: Card) => card.suit != set.TrumpSuit), 'suit');
+    _.each(suitsIHaveThatAreNotTrump, (suit: Suit) => {
+      var allCardsRemainingOfThisSuit = _.sortBy(_.filter(Cards.GetAllCardsForSuit(suit, set.TrumpSuit), (card: Card) => allPlayedCards.indexOf(card) == -1), 'value');
+
+      if (player.Hand.Cards.indexOf(allCardsRemainingOfThisSuit[allCardsRemainingOfThisSuit - 1]) != -1) {
+        winningOffsuitCards.push(allCardsRemainingOfThisSuit[allCardsRemainingOfThisSuit - 1])
+      }
+    });
+
+    if (winningOffsuitCards.length > 0){
+      return winningOffsuitCards[0];
+    }
+
     return null;
   }
 
   private doIHaveTheRestOfTrump(set: Set, player: SetPlayer): boolean {
-    // TODO
-    return false;
+    var totalRemainingTrump = 13 - _.filter(set.AllPlayedCards, { suit: set.TrumpSuit }).length;
+    return totalRemainingTrump == _.filter(player.Hand.Cards, { suit: set.TrumpSuit }).length;
   }
 
   private areMyEnemiesOutOfSuit(set: Set, player: SetPlayer, suit: Suit): boolean {
-    // TODO
+    // This is either because I have the rest of this suit, or they failed to follow this suit once before.
+    if(this.doIHaveTheRestOfThisSuit(set, player, suit)){
+      return true;
+    }
+
+    // Otherwise we dont have the rest of this suit, see if our enemies didnt ever follow suit here.
+    var enemyIds = this.getEnemyIds(set, player);
+    return this.playerOutOfSuit(set, suit, enemyIds[0]) && this.playerOutOfSuit(set, suit, enemyIds[1]);
+  }
+
+  private playerOutOfSuit(set: Set, suit: Suit, playerId: number): boolean {
+    var playerOutOfSuit = false;
+    _.each(set.PlayingRounds, (round: PlayingRound) => {
+      var suitLed: Suit = round.SuitLed;
+      if(suitLed == suit) {
+        var cardPlayedByPlayer: Card = round.cardPlayedByPlayer(playerId);
+
+        if (cardPlayedByPlayer.suit != suit && cardPlayedByPlayer.suit != suit) {
+          playerOutOfSuit = true;
+        }
+      }
+    });
+
+    return playerOutOfSuit;
+  }
+
+  private doIHaveTheRestOfThisSuit(set: Set, player: SetPlayer, suit: Suit): boolean {
+    var allPlayedCards = set.AllPlayedCards;
+    var allCardsRemainingOfThisSuit = _.sortBy(_.filter(Cards.GetAllCardsForSuit(suit, set.TrumpSuit), (card: Card) => allPlayedCards.indexOf(card) == -1), 'value');
+
+    if(allCardsRemainingOfThisSuit.length == _.filter(player.Hand.Cards, { suit: suit}).length){
+      return true;
+    }
+
     return false;
   }
 
   private partnerHasTrump(set: Set, player: SetPlayer): boolean {
-    // TODO
-    return false;
+    // If I have the rest of this suit, then they definately don't have trump.
+    if (this.doIHaveTheRestOfThisSuit(set, player, set.TrumpSuit)){
+      return false;
+    }
+
+    // Otherwise check if they are out of this suit.
+    return !this.playerOutOfSuit(set, this.getPartner(set, player).Id, set.TrumpSuit);
   }
 
-  private getCardFromSuitsMyPartnerIsOutOf(set: Set, player: SetPlayer, lowestCardAvailable: boolean = false): Card {
-    // TODO
-    return null;
+  private getCardFromSuitsMyPartnerIsOutOf(set: Set, player: SetPlayer): Card {
+    var suitsIHaveThatAreNotTrump = _.map(_.filter(player.Hand.Cards, (card: Card) => card.suit != set.TrumpSuit), 'suit');
+
+    var suitPartnerIsOutOf: Suit = Suit.none;
+    _.each(suitsIHaveThatAreNotTrump, (suit: Suit) => {
+      if(this.playerOutOfSuit(set, this.getPartner(set, player).Id, set.TrumpSuit)){
+        suitPartnerIsOutOf = suit;
+      }
+    });
+
+    return suitPartnerIsOutOf == Suit.none ? null : this.getLowestCardOfSuit(player.Hand.Cards, suitPartnerIsOutOf);
   }
 
-  private getCardFromSuitMyEnemiesBid(set: Set, player: SetPlayer, lowestCardAvailable: boolean = false): Card {
-    // TODO
-    return null;
+  private getLowestCardFromSuitMyEnemiesBid(set: Set, player: SetPlayer): Card {
+    var enemies = this.getEnemies(set, player);
+    var cardFromEnemy1Bid = enemies[0].Bid.suit == Suit.none ? null : this.getLowestCardOfSuit(player.Hand.Cards, enemies[0].Bid.suit);
+    var cardFromEnemy2Bid = enemies[1].Bid.suit == Suit.none ? null : this.getLowestCardOfSuit(player.Hand.Cards, enemies[1].Bid.suit);
+    return cardFromEnemy1Bid == null ? cardFromEnemy2Bid : cardFromEnemy1Bid;
   }
 
   private isOneOfMyEnemiesOutOfSuit(set: Set, player: SetPlayer, suit: Suit): boolean {
-    // TODO
-    return false;
+    var enemyIds = this.getEnemyIds(set, player);
+    return this.playerOutOfSuit(set, suit, enemyIds[0]) || this.playerOutOfSuit(set, suit, enemyIds[1]);
   }
 
   private doIHaveTheBestCardOfSuit(set: Set, player: SetPlayer, suit: Suit): boolean {
-    // TODO
-    return false;
+    var allCardsRemainingOfThisSuit = this.allCardsRemainingOfSuit(set, suit);
+    return _.find(player.Hand.Cards, allCardsRemainingOfThisSuit[allCardsRemainingOfThisSuit.length - 1]) != null;
   }
 
   private isBestCardOfSuit(set: Set, card: Card): boolean {
-    // TODO
-    return false;
+    var allCardsRemainingOfThisSuit = this.allCardsRemainingOfSuit(set, card.suit);
+    return allCardsRemainingOfThisSuit[allCardsRemainingOfThisSuit.length - 1] == card;
   }
 
   private isSecondBestCardOfSuit(set: Set, card: Card): boolean {
-    // TODO
-    return false;
+    var allCardsRemainingOfThisSuit = this.allCardsRemainingOfSuit(set, card.suit);
+    return allCardsRemainingOfThisSuit.length > 1 ? allCardsRemainingOfThisSuit[allCardsRemainingOfThisSuit.length - 2].value == card.value : false;
   }
 
   private isThirdBestCardOfSuit(set: Set, card: Card): boolean {
-    // TODO
-    return false;
+    var allCardsRemainingOfThisSuit = this.allCardsRemainingOfSuit(set, card.suit);
+    return allCardsRemainingOfThisSuit.length > 2 ? allCardsRemainingOfThisSuit[allCardsRemainingOfThisSuit.length - 3].value == card.value : false;
   }
 
-
+  private allCardsRemainingOfSuit(set: Set, suit: Suit): Card[] {
+    var allPlayedCards = set.AllPlayedCards;
+    return _.sortBy(_.filter(Cards.GetAllCardsForSuit(suit, set.TrumpSuit), (card: Card) => _.find(allPlayedCards, card) == null), 'value');
+  }
 
   private getWorstCard(set: Set, player: SetPlayer): Card {
     // This should always return a card
-    var nonTrumpCards = _.filter(player.Hand.Cards, (card: Card) => card.suit != set.PlayerWhoWonTheBid.Bid.suit);
+    var nonTrumpCards = _.filter(player.Hand.Cards, (card: Card) => card.suit != set.TrumpSuit);
 
     // if we only have trump left, throw the worst one
     if(nonTrumpCards.length == 0){
@@ -486,7 +547,7 @@ export class AIPlayCardService {
     else {
       // Save the best cards of each suit.
       var bestCardsToSave = this.getBestCardsOfEachNonTrumpSuit(set, nonTrumpCards);
-      nonTrumpCards = _.filter(nonTrumpCards, (card: Card) => bestCardsToSave.indexOf(card) != -1);
+      nonTrumpCards = _.filter(nonTrumpCards, (card: Card) => bestCardsToSave.indexOf(card) == -1);
 
       if (nonTrumpCards.length == 0){
         // If we only have the best cards of each suit, throw the first one. (will only matter in weird edge cases)
@@ -495,7 +556,7 @@ export class AIPlayCardService {
 
       // Save second best cards with cover
       var secondBestCardsAndCoverToSave = this.getSecondBestCardsWithCoverOfEachNonTrumpSuit(set, player, nonTrumpCards);
-      nonTrumpCards = _.filter(nonTrumpCards, (card: Card) => secondBestCardsAndCoverToSave.indexOf(card) != -1);
+      nonTrumpCards = _.filter(nonTrumpCards, (card: Card) => secondBestCardsAndCoverToSave.indexOf(card) == -1);
 
       if (nonTrumpCards.length == 0){
         // If we only have the best cards of each suit, throw the first one. (will only matter in weird edge cases)
@@ -504,7 +565,7 @@ export class AIPlayCardService {
 
       if(nonTrumpCards.length > 2) {
         var thirdBestCardsAndCoverToSave = this.getThirdBestCardsWithCoverOfEachNonTrumpSuit(set, player, nonTrumpCards);
-        nonTrumpCards = _.filter(nonTrumpCards, (card: Card) => thirdBestCardsAndCoverToSave.indexOf(card) != -1);
+        nonTrumpCards = _.filter(nonTrumpCards, (card: Card) => thirdBestCardsAndCoverToSave.indexOf(card) == -1);
 
         if (nonTrumpCards.length == 0){
           // If we only have the best cards of each suit, throw the first one. (will only matter in weird edge cases)
@@ -512,7 +573,7 @@ export class AIPlayCardService {
         }
       }
       // Try to short suit if I have trump.
-      if(nonTrumpCards.length > 1 && _.filter(player.Hand.Cards, { suit: set.PlayerWhoWonTheBid.Bid.suit }).length > 0){
+      if(nonTrumpCards.length > 1 && _.filter(player.Hand.Cards, { suit: set.TrumpSuit }).length > 0){
         // Short Suit - my shortest suit.
         var suitsIHave = _.uniq(_.map(nonTrumpCards, (card: Card) => { return { suit: card.suit, count: 0 }; }));
         _.each(suitsIHave, (suitAndCount) => {
@@ -553,7 +614,7 @@ export class AIPlayCardService {
       // Only check it if we haven't already saved it.
       if (cardsToSave.indexOf(card) == -1) {
         var isThisTheSecondBestCard = this.isSecondBestCardOfSuit(set, card);
-        var coverCards: Card[] = _.take(_.sortBy(_.filter(nonTrumpCards, (cardToCover: Card) => cardToCover.suit == card.suit && cardToCover.value != card.value), 'value'), 0);
+        var coverCards: Card[] = _.sortBy(_.filter(nonTrumpCards, (cardToCover: Card) => cardToCover.suit == card.suit && cardToCover.value != card.value), 'value');
 
         if (isThisTheSecondBestCard && this.doIHaveTheBestCardOfSuit(set, player, card.suit)) {
           cardsToSave.push(card);
@@ -582,7 +643,7 @@ export class AIPlayCardService {
     _.each(nonTrumpCards, (card: Card) => {
       if (cardsToSave.indexOf(card) == -1 ) {
         var isThisTheThirdBestCard = this.isThirdBestCardOfSuit(set, card);
-        var coverCards: Card[] = _.take(_.sortBy(_.filter(nonTrumpCards, (cardToCover: Card) => cardToCover.suit == card.suit && cardToCover.value != card.value), 'value'), 0);
+        var coverCards: Card[] = _.sortBy(_.filter(nonTrumpCards, (cardToCover: Card) => cardToCover.suit == card.suit && cardToCover.value != card.value), 'value');
 
         if (isThisTheThirdBestCard && coverCards.length > 1) {
           // Keep the best of the cover cards and the card to save

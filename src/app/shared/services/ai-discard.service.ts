@@ -11,10 +11,10 @@ import {
 export class AIDiscardService {
   discard(set: Set){
     // My new hand is all the trump cards to start.
-    var newHand: Card[] = _.takeRight(_.sortBy(_.filter(set.PlayerWhoWonTheBid.Hand.Cards, { suit: set.PlayerWhoWonTheBid.Bid.suit}), 'value'), 10);
+    var newHand: Card[] = _.takeRight(_.sortBy(_.filter(set.PlayerWhoWonTheBid.Hand.Cards, { suit: set.TrumpSuit}), 'value'), 10);
 
     if(newHand.length < 10){
-      var nonTrumpCards: Card[] = _.filter(set.PlayerWhoWonTheBid.Hand.Cards, (card: Card) => card.suit != set.PlayerWhoWonTheBid.Bid.suit);
+      var nonTrumpCards: Card[] = _.filter(set.PlayerWhoWonTheBid.Hand.Cards, (card: Card) => card.suit != set.TrumpSuit);
       var cardsNeeded: number = 10 - newHand.length;
       var enemiesBidsSuits: Suit[] = _.uniq(_.map(_.filter(set.Players, (player: SetPlayer) => player.TeamId != set.PlayerWhoWonTheBid.TeamId && player.Bid != Bids.Pass()), (x: SetPlayer) => x.Bid.suit));
 

@@ -389,24 +389,87 @@ export function getOffsuitValue(cards: Card[], suit: Suit) : string
         deck.push(joker());
 
         // Add each of the suits
-        _.each(Suits.allSuits(), (suit) => {
-          deck.push(new Card(suit, CardValue.four));
-          deck.push(new Card(suit, CardValue.five));
-          deck.push(new Card(suit, CardValue.six));
-          deck.push(new Card(suit, CardValue.seven));
-          deck.push(new Card(suit, CardValue.eight));
-          deck.push(new Card(suit, CardValue.nine));
-          deck.push(new Card(suit, CardValue.ten));
-          deck.push(new Card(suit, CardValue.jack));
-          deck.push(new Card(suit, CardValue.queen));
-          deck.push(new Card(suit, CardValue.king));
-          deck.push(new Card(suit, CardValue.ace));
+        _.each(Suits.allSuits(), (suit: Suit) => {
+          deck = deck.concat(this.GetAllCardsForSuit(suit));
         });
 
         deck = _.shuffle(deck);
         break;
     }
     return deck;
+  }
+
+  export function GetAllCardsForSuit(suit: Suit, trumpSuit: Suit = Suit.none): Card[]{
+
+    if(trumpSuit == Suit.none || matchingSuitForTrump == Suit.none) {
+      var cards: Card[] = [];
+      cards.push(new Card(suit, CardValue.four));
+      cards.push(new Card(suit, CardValue.five));
+      cards.push(new Card(suit, CardValue.six));
+      cards.push(new Card(suit, CardValue.seven));
+      cards.push(new Card(suit, CardValue.eight));
+      cards.push(new Card(suit, CardValue.nine));
+      cards.push(new Card(suit, CardValue.ten));
+      cards.push(new Card(suit, CardValue.jack));
+      cards.push(new Card(suit, CardValue.queen));
+      cards.push(new Card(suit, CardValue.king));
+      cards.push(new Card(suit, CardValue.ace));
+      return cards;
+    }
+    else {
+      var matchingSuitForTrump = Suit.none;
+      if(suit == Suit.hearts){
+        matchingSuitForTrump = Suit.diamonds;
+      }
+      else if (suit == Suit.diamonds) {
+        matchingSuitForTrump = Suit.hearts;
+      }
+      else if(suit == Suit.clubs){
+        matchingSuitForTrump = Suit.spades;
+      }
+      else if (suit == Suit.spades){
+        matchingSuitForTrump = Suit.clubs;
+      }
+
+
+      if(suit == trumpSuit){
+        // no jack, yes right/left bauer and joker.
+        var cards: Card[] = [];
+        cards.push(new Card(suit, CardValue.four));
+        cards.push(new Card(suit, CardValue.five));
+        cards.push(new Card(suit, CardValue.six));
+        cards.push(new Card(suit, CardValue.seven));
+        cards.push(new Card(suit, CardValue.eight));
+        cards.push(new Card(suit, CardValue.nine));
+        cards.push(new Card(suit, CardValue.ten));
+        cards.push(new Card(suit, CardValue.queen));
+        cards.push(new Card(suit, CardValue.king));
+        cards.push(new Card(suit, CardValue.ace));
+
+        cards.push(new Card(suit, CardValue.leftBauer));
+        cards.push(new Card(suit, CardValue.rightBauer));
+        cards.push(new Card(suit, CardValue.joker));
+        return cards;
+      }
+      else if(suit == matchingSuitForTrump) {
+        // no jack
+        var cards: Card[] = [];
+        cards.push(new Card(suit, CardValue.four));
+        cards.push(new Card(suit, CardValue.five));
+        cards.push(new Card(suit, CardValue.six));
+        cards.push(new Card(suit, CardValue.seven));
+        cards.push(new Card(suit, CardValue.eight));
+        cards.push(new Card(suit, CardValue.nine));
+        cards.push(new Card(suit, CardValue.ten));
+        cards.push(new Card(suit, CardValue.queen));
+        cards.push(new Card(suit, CardValue.king));
+        cards.push(new Card(suit, CardValue.ace));
+        return cards;
+      }
+      else {
+        return this.GetAllCardsForSuit(suit);
+      }
+    }
   }
 
   export function TestDeck(testNumber: number): Card[]{

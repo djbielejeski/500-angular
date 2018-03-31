@@ -40,20 +40,30 @@ export class SetService {
     set.StartNewRound(this.getPlayerIdWhoWonLastRound(set));
   }
 
-  private getPlayerIdWhoWonLastRound(set: Set): number {
-    if(set.PlayingRounds.length <= 1) {
-      // player who won the bid starts
-      return set.PlayerWhoWonTheBid.Id;
-    }
-    else{
-      // player who won the last trick starts
-      return set.PlayingRounds[set.PlayingRounds.length - 2].winningPlayerId(set.PlayerWhoWonTheBid.Bid.suit);
-    }
-  }
 
   private getPlayerWhoseTurnItIs(set: Set): SetPlayer {
     var player = _.find(set.Players, { Id: this.getPlayerIdWhoWonLastRound(set) });
+
     return set.Players[(_.indexOf(set.Players, player) + set.CurrentPlayingRound.CardsPlayed.length) % 4];
+  }
+
+  private getPlayerIdWhoWonLastRound(set: Set): number {
+
+
+    if(set.PlayingRounds.length == 0) {
+      // player who won the bid starts
+      return set.PlayerWhoWonTheBid.Id;
+    }
+    else {
+      var lastOrCurrentRound = set.PlayingRounds[set.PlayingRounds.length - 1];
+
+      if(lastOrCurrentRound.CardsPlayed.length == 4){
+        return lastOrCurrentRound.WinningPlayerId;
+      }
+      else{
+        return lastOrCurrentRound.PlayerPlayingOrder[0];
+      }
+    }
   }
 
   playCard(set: Set){
@@ -72,10 +82,10 @@ export class SetService {
   private fixAllCardsForNewTrumpSuit(set: Set){
     // Go through each person and flip bauers to the correct values.
     _.each(set.Players, (player: SetPlayer) => {
-      this.fixHand(player.Hand, set.PlayerWhoWonTheBid.Bid.suit)
+      this.fixHand(player.Hand, set.TrumpSuit)
     });
 
-    this.fixHand(set.Blind, set.PlayerWhoWonTheBid.Bid.suit);
+    this.fixHand(set.Blind, set.TrumpSuit);
   }
 
   private fixHand(hand: Hand, trumpSuit: Suit){
