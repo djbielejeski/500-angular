@@ -265,7 +265,7 @@ export class AIPlayCardService {
     var cardToPlay: Card = null;
 
     // First check if we have a winner of this suit
-    if (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed)){
+    if (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed) && !this.trumpHasBeenPlayedThisRound(set)){
       cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards,set.CurrentPlayingRound.SuitLed);
     }
     else{
@@ -293,7 +293,7 @@ export class AIPlayCardService {
     var cardToPlay: Card = null;
 
     // First check if we have a winner of this suit
-    if (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed)){
+    if (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed) && !this.trumpHasBeenPlayedThisRound(set)){
       cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, set.CurrentPlayingRound.SuitLed);
     }
     else{
@@ -321,7 +321,7 @@ export class AIPlayCardService {
     var cardToPlay: Card = null;
 
     // First check if we have a winner of this suit
-    if (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed)){
+    if (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed) && !this.trumpHasBeenPlayedThisRound(set)){
       cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, set.CurrentPlayingRound.SuitLed);
     }
     else{
@@ -360,14 +360,14 @@ export class AIPlayCardService {
   }
 
   private getPartner(set: Set, player: SetPlayer) : SetPlayer {
-    return set.Players[(_.indexOf(set.Players, { Id: player.Id }) + 2) % 4];
+    return set.Players[(_.findIndex(set.Players, { Id: player.Id }) + 2) % 4];
   }
 
 
   private getEnemies(set: Set, player: SetPlayer): SetPlayer[] {
     return [
-      set.Players[(_.indexOf(set.Players, { Id: player.Id }) + 1) % 4],
-      set.Players[(_.indexOf(set.Players, { Id: player.Id }) + 3) % 4],
+      set.Players[(_.findIndex(set.Players, { Id: player.Id }) + 1) % 4],
+      set.Players[(_.findIndex(set.Players, { Id: player.Id }) + 3) % 4],
     ];
   }
 
@@ -378,8 +378,7 @@ export class AIPlayCardService {
 
   private getCardFromPartnerBidSuit(set: Set, player: SetPlayer): Card {
     var partner = this.getPartner(set, player);
-
-    if (partner.Bid != Bids.Pass()){
+    if (partner.Bid.suit != Suit.none){
       return this.getLowestCardOfSuit(player.Hand.Cards, partner.Bid.suit);
     }
 
@@ -400,6 +399,11 @@ export class AIPlayCardService {
     return null;
   }
 
+  private trumpHasBeenPlayedThisRound(set: Set): boolean {
+    var currentRound = this.currentRound(set);
+    return _.find(currentRound.CardsPlayed, { suit: set.TrumpSuit }) != null;
+  }
+
   private getLowestCardOfSuit(cards: Card[], suit: Suit): Card {
     var cardsOfSuit = _.filter(cards, { suit: suit });
 
@@ -414,7 +418,7 @@ export class AIPlayCardService {
     var allPlayedCards = set.AllPlayedCards;
 
     var winningOffsuitCards: Card[] = [];
-    var suitsIHaveThatAreNotTrump = _.map(_.filter(player.Hand.Cards, (card: Card) => card.suit != set.TrumpSuit), 'suit');
+    var suitsIHaveThatAreNotTrump = _.uniq(_.map(_.filter(player.Hand.Cards, (card: Card) => card.suit != set.TrumpSuit), 'suit'));
     _.each(suitsIHaveThatAreNotTrump, (suit: Suit) => {
       var allCardsRemainingOfThisSuit = _.sortBy(_.filter(Cards.GetAllCardsForSuit(suit, set.TrumpSuit), (card: Card) => allPlayedCards.indexOf(card) == -1), 'value');
 
@@ -484,7 +488,7 @@ export class AIPlayCardService {
   }
 
   private getCardFromSuitsMyPartnerIsOutOf(set: Set, player: SetPlayer): Card {
-    var suitsIHaveThatAreNotTrump = _.map(_.filter(player.Hand.Cards, (card: Card) => card.suit != set.TrumpSuit), 'suit');
+    var suitsIHaveThatAreNotTrump = _.uniq(_.map(_.filter(player.Hand.Cards, (card: Card) => card.suit != set.TrumpSuit), 'suit'));
 
     var suitPartnerIsOutOf: Suit = Suit.none;
     _.each(suitsIHaveThatAreNotTrump, (suit: Suit) => {

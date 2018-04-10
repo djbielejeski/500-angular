@@ -12,6 +12,7 @@ export class HandStrength {
   constructor(_suit: Suit) {
       this.suit = _suit;
   }
+
 }
 
 export namespace HandStrengthHelpers {

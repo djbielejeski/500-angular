@@ -23,7 +23,8 @@
    </div>
    <div class="card-area">
      <!--<div class="blind" *ngIf="game.blindCards && !game.activeSet.DiscardComplete">-->
-     <div class="blind" *ngIf="game.blindCards">
+
+     <div class="blind sr-only" *ngIf="game.blindCards">
        <div *ngFor="let card of game.blindCards" class="playing-card" [ngClass]="card.cssClass"></div>
      </div>
      <div class="card-3">

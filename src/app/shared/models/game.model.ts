@@ -26,10 +26,17 @@ export class Game {
   }
 
   SetupGame(){
-    var player1 = new GamePlayer(Math.floor(Math.random() * 100000) + 100000, "Player 1", Position.first, PlayerType.human, this.team1Id);
+    /*var player1 = new GamePlayer(Math.floor(Math.random() * 100000) + 100000, "Player 1", Position.first, PlayerType.human, this.team1Id);
     var player2 = new GamePlayer(Math.floor(Math.random() * 100000) + 100000, "Player 2", Position.second, PlayerType.computer, this.team2Id);
     var player3 = new GamePlayer(Math.floor(Math.random() * 100000) + 100000, "Player 3", Position.third, PlayerType.computer, this.team1Id);
     var player4 = new GamePlayer(Math.floor(Math.random() * 100000) + 100000, "Player 4", Position.fourth, PlayerType.computer, this.team2Id);
+*/
+
+    var player1 = new GamePlayer(1, "Player 1", Position.first, PlayerType.human, this.team1Id);
+    var player2 = new GamePlayer(2, "Player 2", Position.second, PlayerType.computer, this.team2Id);
+    var player3 = new GamePlayer(3, "Player 3", Position.third, PlayerType.computer, this.team1Id);
+    var player4 = new GamePlayer(4, "Player 4", Position.fourth, PlayerType.computer, this.team2Id);
+
 
     this.Players.push(player1);
     this.Players.push(player2);

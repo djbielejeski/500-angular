@@ -1,7 +1,7 @@
 import {IPlayerBaseModel} from '@app/shared/models/player-base.model';
-import {PlayerType, Position, Suit} from '@app/shared/models/types.enums';
+import {BidValue, PlayerType, Position, Suit, Suits} from '@app/shared/models/types.enums';
 import {Hand} from '@app/shared/models/hand.model';
-import {Bid} from '@app/shared/models/bid.model';
+import {Bid, Bids} from '@app/shared/models/bid.model';
 import {HandStrength, HandStrengthHelpers} from '@app/shared/models/hand-strength.model';
 import {GamePlayer} from '@app/shared/models/game-player.model';
 
@@ -44,6 +44,11 @@ export class SetPlayer implements IPlayerBaseModel {
       if (this.SpadesStrength.bidValue > strongestBid.bidValue)
       {
         strongestBid = this.SpadesStrength;
+      }
+
+      if (strongestBid.bidValue == BidValue.pass) {
+        strongestBid = new HandStrength(Suit.none);
+        strongestBid.bidValue = BidValue.pass;
       }
 
       return strongestBid;
