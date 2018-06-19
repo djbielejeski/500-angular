@@ -19,13 +19,12 @@ import * as services from '@app/shared/services';
 @NgModule({
   declarations: [
     AppRootComponent,
-
     GameComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    RouterModule.forRoot(routes), //, { enableTracing: true }
+    RouterModule.forRoot(routes) //, { enableTracing: true }
   ],
   providers: [
     services.GameService,

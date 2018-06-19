@@ -10,6 +10,10 @@ import {Card, Game, Set, Position, SetPlayer} from '@app/shared/models';
 })
 export class GameComponent implements OnInit {
   game: Game;
+  private enable_pause = false;
+  private pause_at_round = 8;
+  private pause_at_player_position = 0;
+
   constructor(private gameService: GameService, private setService: SetService){
 
   }
@@ -31,6 +35,12 @@ export class GameComponent implements OnInit {
 
       // start the round!
       this.setService.startNewRound(this.game.activeSet);
+
+      if(this.enable_pause) {
+        for (var i = 0; i < this.pause_at_round * 4 + this.pause_at_player_position; i++) {
+          this.playCard();
+        }
+      }
     }
   }
 

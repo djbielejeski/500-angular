@@ -104,7 +104,7 @@ export class AIPlayCardService {
   }
 
   layCard(set: Set, player: SetPlayer, cardToPlay: Card) {
-    player.Hand.Cards = _.filter(player.Hand.Cards, (card: Card) => card != cardToPlay);
+    player.Hand.Cards = _.filter(player.Hand.Cards, (card: Card) => card.value != cardToPlay.value || card.suit != cardToPlay.suit);
     set.CurrentPlayingRound.CardsPlayed.push(cardToPlay);
 
     console.log(set);
@@ -239,6 +239,11 @@ export class AIPlayCardService {
       }
     }
     else {
+
+      if(set.AllPlayedCards.length > 31){
+        debugger;
+      }
+
       // Not my bid, play a winner card if possible
       cardToPlay = this.getWinningOffsuitCard(set, player);
 
@@ -320,11 +325,13 @@ export class AIPlayCardService {
   private FourthCard(set: Set, player: SetPlayer): Card {
     var cardToPlay: Card = null;
 
-    // First check if we have a winner of this suit
-    if (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed) && !this.trumpHasBeenPlayedThisRound(set)){
+    // First check if we have a winner of this suit and my partner hasn't won the trick
+    if (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed) &&
+        !this.trumpHasBeenPlayedThisRound(set) &&
+        !this.partnerIsWinningTheRound(set, player)){
       cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, set.CurrentPlayingRound.SuitLed);
     }
-    else{
+    else {
       cardToPlay = this.getLowestCardOfSuit(player.Hand.Cards, set.CurrentPlayingRound.SuitLed);
 
       // See if I have to follow suit.
@@ -420,10 +427,11 @@ export class AIPlayCardService {
     var winningOffsuitCards: Card[] = [];
     var suitsIHaveThatAreNotTrump = _.uniq(_.map(_.filter(player.Hand.Cards, (card: Card) => card.suit != set.TrumpSuit), 'suit'));
     _.each(suitsIHaveThatAreNotTrump, (suit: Suit) => {
-      var allCardsRemainingOfThisSuit = _.sortBy(_.filter(Cards.GetAllCardsForSuit(suit, set.TrumpSuit), (card: Card) => allPlayedCards.indexOf(card) == -1), 'value');
 
-      if (player.Hand.Cards.indexOf(allCardsRemainingOfThisSuit[allCardsRemainingOfThisSuit - 1]) != -1) {
-        winningOffsuitCards.push(allCardsRemainingOfThisSuit[allCardsRemainingOfThisSuit - 1])
+      var allCardsRemainingOfThisSuit = this.allCardsRemainingOfSuit(set, suit);
+
+      if (_.find(player.Hand.Cards, allCardsRemainingOfThisSuit[allCardsRemainingOfThisSuit.length - 1])) {
+        winningOffsuitCards.push(allCardsRemainingOfThisSuit[allCardsRemainingOfThisSuit.length - 1])
       }
     });
 
@@ -468,7 +476,7 @@ export class AIPlayCardService {
 
   private doIHaveTheRestOfThisSuit(set: Set, player: SetPlayer, suit: Suit): boolean {
     var allPlayedCards = set.AllPlayedCards;
-    var allCardsRemainingOfThisSuit = _.sortBy(_.filter(Cards.GetAllCardsForSuit(suit, set.TrumpSuit), (card: Card) => allPlayedCards.indexOf(card) == -1), 'value');
+    var allCardsRemainingOfThisSuit = this.allCardsRemainingOfSuit(set, set.TrumpSuit);
 
     if(allCardsRemainingOfThisSuit.length == _.filter(player.Hand.Cards, { suit: suit}).length){
       return true;
@@ -515,6 +523,53 @@ export class AIPlayCardService {
   private doIHaveTheBestCardOfSuit(set: Set, player: SetPlayer, suit: Suit): boolean {
     var allCardsRemainingOfThisSuit = this.allCardsRemainingOfSuit(set, suit);
     return _.find(player.Hand.Cards, allCardsRemainingOfThisSuit[allCardsRemainingOfThisSuit.length - 1]) != null;
+  }
+
+  private partnerIsWinningTheRound(set: Set, player: SetPlayer): boolean {
+    var partner = this.getPartner(set, player);
+    return this.playerWinningTheRound(set, partner);
+  }
+
+  private playerWinningTheRound(set: Set, player: SetPlayer): boolean {
+    var cardPlayedByPlayer = set.CurrentPlayingRound.cardPlayedByPlayer(player.Id);
+    var otherCardsPlayed = this.getCardsPlayedExcept(set.CurrentPlayingRound, cardPlayedByPlayer);
+
+    var playerIsWinningTheRound = true;
+
+    // Trump was lead
+    if (set.CurrentPlayingRound.SuitLed == set.TrumpSuit){
+      if (cardPlayedByPlayer.suit == set.TrumpSuit){
+        _.each(otherCardsPlayed, (card: Card ) => {
+          if(card.suit == set.TrumpSuit && card.value > cardPlayedByPlayer.value){
+            playerIsWinningTheRound = false;
+          }
+        });
+      }
+      // We did not play trump, so we are losing because trump was lead.
+      else {
+        playerIsWinningTheRound = false;
+      }
+    }
+    // Trump was not led, but we are following suit
+    else if(cardPlayedByPlayer.suit == set.CurrentPlayingRound.SuitLed){
+      _.each(otherCardsPlayed, (card:Card) => {
+        // If anyone is playing trump other than us, we lose
+        // If anyone else if following suit and has a higher card than us, we lose.
+        if(card.suit == set.TrumpSuit ||
+          (card.suit == set.CurrentPlayingRound.SuitLed && card.value > cardPlayedByPlayer.value)){
+          playerIsWinningTheRound = false;
+        }
+      });
+    }
+    else {
+      playerIsWinningTheRound = false;
+    }
+
+    return playerIsWinningTheRound;
+  }
+
+  private getCardsPlayedExcept(round: PlayingRound, playerCard: Card): Card[] {
+    return _.filter(round.CardsPlayed, (card: Card) => card.suit != playerCard.suit || card.value != playerCard.value);
   }
 
   private isBestCardOfSuit(set: Set, card: Card): boolean {
