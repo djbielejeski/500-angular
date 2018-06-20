@@ -9,7 +9,7 @@
           P1
 -->
 
-<div class="full-height-container">
+<div class="full-height-container" *ngIf="game">
  <div class="player-3">
    <div class="player-hand-horizontal">
      <div *ngFor="let card of game.player3.Hand.Cards" class="playing-card" [ngClass]="card.cssClass"></div>
@@ -22,10 +22,9 @@
      </div>
    </div>
    <div class="card-area">
-     <!--<div class="blind" *ngIf="game.blindCards && !game.activeSet.DiscardComplete">-->
 
-     <div class="blind sr-only" *ngIf="game.blindCards">
-       <div *ngFor="let card of game.blindCards" class="playing-card" [ngClass]="card.cssClass"></div>
+     <div class="blind" *ngIf="game.blindCards && showBlind">
+       <div *ngFor="let card of game.blindCards" class="playing-card" [ngClass]="card.cssClass" (click)="blindCardClick(card)"></div>
      </div>
      <div class="card-3">
        {{ game.player3BiddingPosition }} | {{ game.player3.Bid?.BidDisplay }}
@@ -52,15 +51,16 @@
  </div>
  <div class="player-1">
    <button class="btn btn-success btn-sm" type="button" (click)="newGame()">New Game</button>
-   <button class="btn btn-warning btn-sm" type="button" (click)="playCard()">Play Card</button>
+   <button class="btn btn-warning btn-sm" type="button" (click)="playCard()" *ngIf="!showBlind && !showHumanBidOptions">Play Card</button>
    <select *ngIf="showHumanBidOptions" [(ngModel)]="humanBid">
      <option *ngFor="let bid of availableBidOptions" [ngValue]="bid">
        {{ bid.BidDisplay }}
      </option>
    </select>
+   <button class="btn btn-warning btn-sm" type="button" (click)="discardBlind()" [disabled]="game.activeSet.Blind.Cards.length < 5" *ngIf="showBlind">Discard Blind</button>
    <button class="btn btn-success btn-sm" type="button" (click)="selectHumanBid()" *ngIf="showHumanBidOptions">Place Bid</button>
    <div class="player-hand-horizontal" [ngClass]="{ 'has-blind': game.player1.Hand.Cards.length > 10 }">
-     <div *ngFor="let card of game.player1.Hand.Cards" class="playing-card" [ngClass]="card.cssClass"></div>
+     <div *ngFor="let card of game.player1.Hand.Cards" class="playing-card" [ngClass]="card.cssClass" (click)="cardClick(card)"></div>
    </div>
  </div>
 </div>

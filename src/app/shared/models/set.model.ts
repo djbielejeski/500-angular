@@ -248,6 +248,7 @@ export class Set {
       case 3: startingIndex = 2; break;
       case 4: startingIndex = 0; break;
       case 5: startingIndex = 0; break;
+      case 6: startingIndex = 0; break;
     }
 
     if(startingIndex >= 0){

@@ -238,11 +238,6 @@ export class AIPlayCardService {
       }
     }
     else {
-
-      if(set.AllPlayedCards.length > 31){
-        debugger;
-      }
-
       // Not my bid, play a winner card if possible
       cardToPlay = this.getWinningOffsuitCard(set, player);
 

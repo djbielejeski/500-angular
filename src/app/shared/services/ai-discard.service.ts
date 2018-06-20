@@ -21,7 +21,12 @@ export class AIDiscardService {
       newHand = newHand.concat(this.getBestNonTrumpCards(nonTrumpCards, cardsNeeded, enemiesBidsSuits))
     }
 
-    set.Blind.Cards = _.filter(set.PlayerWhoWonTheBid.Hand.Cards, (card: Card) => newHand.indexOf(card) === -1);
+    set.Blind.Cards = _.filter(set.PlayerWhoWonTheBid.Hand.Cards, (card: Card) => {
+      return !_.find(newHand, (newHandCard: Card) => {
+        return newHandCard.suit == card.suit && newHandCard.value == card.value;
+      });
+    });
+
     set.PlayerWhoWonTheBid.Hand.Cards = newHand;
     set.PlayerWhoWonTheBid.Hand.Sort();
 

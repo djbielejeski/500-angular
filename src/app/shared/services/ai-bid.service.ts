@@ -37,7 +37,7 @@ export class AIBidService {
   availableBids(set: Set): Bid[] {
     var playerWithHighestBid = Bids.highestBid(set.Players);
 
-    if (playerWithHighestBid.Bid != null) {
+    if (playerWithHighestBid != null && playerWithHighestBid.Bid != null) {
       return _.filter(Bids.allBids(), (bid: Bid) => {
         return bid.value == BidValue.pass || bid.value > playerWithHighestBid.Bid.value;
       });
