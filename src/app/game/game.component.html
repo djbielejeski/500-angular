@@ -28,19 +28,19 @@
        <div *ngFor="let card of game.blindCards" class="playing-card" [ngClass]="card.cssClass"></div>
      </div>
      <div class="card-3">
-       {{ game.player3BiddingPosition }} | {{ game.player3.Bid.BidDisplay }}
+       {{ game.player3BiddingPosition }} | {{ game.player3.Bid?.BidDisplay }}
        <div *ngIf="game.activeSet.player3PlayedCard" class="playing-card" [ngClass]="game.activeSet.player3PlayedCard?.cssClass"></div>
      </div>
      <div class="card-2">
-        {{ game.player2BiddingPosition }} | {{ game.player2.Bid.BidDisplay }}
+        {{ game.player2BiddingPosition }} | {{ game.player2.Bid?.BidDisplay }}
        <div *ngIf="game.activeSet.player2PlayedCard" class="playing-card" [ngClass]="game.activeSet.player2PlayedCard?.cssClass"></div>
      </div>
      <div class="card-4">
-       {{ game.player4BiddingPosition }} | {{ game.player4.Bid.BidDisplay }}
+       {{ game.player4BiddingPosition }} | {{ game.player4.Bid?.BidDisplay }}
        <div *ngIf="game.activeSet.player4PlayedCard" class="playing-card" [ngClass]="game.activeSet.player4PlayedCard?.cssClass"></div>
      </div>
      <div class="card-1">
-       {{ game.player1BiddingPosition }} | {{ game.player1.Bid.BidDisplay }}
+       {{ game.player1BiddingPosition }} | {{ game.player1.Bid?.BidDisplay }}
        <div *ngIf="game.activeSet.player1PlayedCard" class="playing-card" [ngClass]="game.activeSet.player1PlayedCard?.cssClass"></div>
      </div>
    </div>
@@ -53,6 +53,12 @@
  <div class="player-1">
    <button class="btn btn-success btn-sm" type="button" (click)="newGame()">New Game</button>
    <button class="btn btn-warning btn-sm" type="button" (click)="playCard()">Play Card</button>
+   <select *ngIf="showHumanBidOptions" [(ngModel)]="humanBid">
+     <option *ngFor="let bid of availableBidOptions" [ngValue]="bid">
+       {{ bid.BidDisplay }}
+     </option>
+   </select>
+   <button class="btn btn-success btn-sm" type="button" (click)="selectHumanBid()" *ngIf="showHumanBidOptions">Place Bid</button>
    <div class="player-hand-horizontal" [ngClass]="{ 'has-blind': game.player1.Hand.Cards.length > 10 }">
      <div *ngFor="let card of game.player1.Hand.Cards" class="playing-card" [ngClass]="card.cssClass"></div>
    </div>

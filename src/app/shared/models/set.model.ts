@@ -76,16 +76,16 @@ export class Set {
   }
 
   get player1PlayedCard(): Card {
-    return this.CurrentPlayingRound.cardPlayedByPlayer(this.Players[0].Id);
+    return this.CurrentPlayingRound && this.CurrentPlayingRound.cardPlayedByPlayer(this.Players[0].Id);
   }
   get player2PlayedCard(): Card {
-    return this.CurrentPlayingRound.cardPlayedByPlayer(this.Players[1].Id);
+    return this.CurrentPlayingRound && this.CurrentPlayingRound.cardPlayedByPlayer(this.Players[1].Id);
   }
   get player3PlayedCard(): Card {
-    return this.CurrentPlayingRound.cardPlayedByPlayer(this.Players[2].Id);
+    return this.CurrentPlayingRound && this.CurrentPlayingRound.cardPlayedByPlayer(this.Players[2].Id);
   }
   get player4PlayedCard(): Card {
-    return this.CurrentPlayingRound.cardPlayedByPlayer(this.Players[3].Id);
+    return this.CurrentPlayingRound && this.CurrentPlayingRound.cardPlayedByPlayer(this.Players[3].Id);
   }
 
   get HighBid(): Bid {
@@ -201,6 +201,13 @@ export class Set {
     this.Players[2].Hand.Sort();
     this.Players[3].Hand.Sort();
     this.Blind.Sort();
+  }
+
+  PlayerWhoseBidItIs(): SetPlayer {
+    var playerIdWhoseBidItIs: number = this.PlayerBiddingOrder[this.Bids.length];
+    var player = _.find(this.Players, { Id: playerIdWhoseBidItIs });
+
+    return player;
   }
 
   private AddCards(count: number, hand: Hand, deck: Card[]): Card[] {

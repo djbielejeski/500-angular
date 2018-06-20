@@ -12,8 +12,7 @@ export class AIBidService {
     var bid: Bid;
 
     // Figure out whose turn it is to bid
-    var playerIdWhoseBidItIs: number = set.PlayerBiddingOrder[set.Bids.length];
-    var player = _.find(set.Players, { Id: playerIdWhoseBidItIs });
+    var player = set.PlayerWhoseBidItIs();
 
     var biddingPosition = set.Bids.length + 1;
     switch (biddingPosition) {
@@ -33,6 +32,19 @@ export class AIBidService {
       debugger;
     }
     player.Bid = bid;
+  }
+
+  availableBids(set: Set): Bid[] {
+    var playerWithHighestBid = Bids.highestBid(set.Players);
+
+    if (playerWithHighestBid.Bid != null) {
+      return _.filter(Bids.allBids(), (bid: Bid) => {
+        return bid.value == BidValue.pass || bid.value > playerWithHighestBid.Bid.value;
+      });
+    }
+    else {
+      return Bids.allBids();
+    }
   }
 
   private firstBid(set: Set, player: SetPlayer ): Bid  {

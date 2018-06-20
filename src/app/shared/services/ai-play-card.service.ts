@@ -117,7 +117,7 @@ export class AIPlayCardService {
 
   private OpeningRound_FirstCard(set: Set, player: SetPlayer): Card {
     // Play my biggest trump
-    var cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, this.winningBid(set).suit);
+    var cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, set.TrumpSuit);
 
     // If I dont have a trump, still need to play a card, so find my biggest offsuit
     if (cardToPlay == null) {
@@ -146,7 +146,7 @@ export class AIPlayCardService {
       // it is our bid.
       // Do i have the rest of the trump? Or are my enemies out of trump?
       if (this.doIHaveTheRestOfTrump(set, player) ||
-          this.areMyEnemiesOutOfSuit(set, player, this.winningBid(set).suit)){
+          this.areMyEnemiesOutOfSuit(set, player, set.TrumpSuit)){
 
         cardToPlay = this.getWinningOffsuitCard(set, player);
 
@@ -194,47 +194,46 @@ export class AIPlayCardService {
       else {
         // My partner and I do not have the rest of the trump,
         // play my best trump if I don't know that my enemies are out of trump
-        if(!this.isOneOfMyEnemiesOutOfSuit(set, player, this.winningBid(set).suit)){
-          // If I have the biggest trump throw it, if I don't, throw a card that will pull the highest
-          // unless I know my partner has it
-          cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, this.winningBid(set).suit);
 
-          if (!this.doIHaveTheBestCardOfSuit(set, player, this.winningBid(set).suit)) {
-            // I do not have the best card of this suit, play my smallest trump
-            cardToPlay = this.getLowestCardOfSuit(player.Hand.Cards, this.winningBid(set).suit);
+        // If I have the biggest trump throw it, if I don't, throw a card that will pull the highest
+        // unless I know my partner has it
+        cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, set.TrumpSuit);
 
-            if(cardToPlay == null){
-              // I do not have any trump left,
-              // play an offsuit card
-              cardToPlay = this.getWinningOffsuitCard(set, player);
+        if (!this.doIHaveTheBestCardOfSuit(set, player, set.TrumpSuit)) {
+          // I do not have the best card of this suit, play my smallest trump
+          cardToPlay = this.getLowestCardOfSuit(player.Hand.Cards, set.TrumpSuit);
+
+          if(cardToPlay == null){
+            // I do not have any trump left,
+            // play an offsuit card
+            cardToPlay = this.getWinningOffsuitCard(set, player);
+
+            if (cardToPlay == null){
+              //we were not able to play a winning offsuit card
+              cardToPlay = this.getCardFromPartnerBidSuit(set, player);
 
               if (cardToPlay == null){
-                //we were not able to play a winning offsuit card
-                cardToPlay = this.getCardFromPartnerBidSuit(set, player);
-
-                if (cardToPlay == null){
-                  // I don't have any cards from my partners bid to throw, default to throwing a bad card.
-                  cardToPlay = this.getWorstCard(set, player);
-                }
-                else{
-                  // I have a card I can try to pass with to my partner
-                  // NOOP
-                }
+                // I don't have any cards from my partners bid to throw, default to throwing a bad card.
+                cardToPlay = this.getWorstCard(set, player);
               }
-              else {
-                // We have a winning offsuit card. Play that
+              else{
+                // I have a card I can try to pass with to my partner
                 // NOOP
               }
             }
             else {
-              // We have a small trump to play
+              // We have a winning offsuit card. Play that
               // NOOP
             }
           }
           else {
-            // we have the best trump card available, we are going to throw that
+            // We have a small trump to play
             // NOOP
           }
+        }
+        else {
+          // we have the best trump card available, we are going to throw that
+          // NOOP
         }
       }
     }
@@ -270,7 +269,8 @@ export class AIPlayCardService {
     var cardToPlay: Card = null;
 
     // First check if we have a winner of this suit
-    if (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed) && !this.trumpHasBeenPlayedThisRound(set)){
+    if ((set.CurrentPlayingRound.SuitLed == set.TrumpSuit && this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed)) ||
+        (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed) && !this.trumpHasBeenPlayedThisRound(set))){
       cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards,set.CurrentPlayingRound.SuitLed);
     }
     else{
@@ -298,7 +298,8 @@ export class AIPlayCardService {
     var cardToPlay: Card = null;
 
     // First check if we have a winner of this suit
-    if (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed) && !this.trumpHasBeenPlayedThisRound(set)){
+    if ((set.CurrentPlayingRound.SuitLed == set.TrumpSuit && this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed)) ||
+        (this.doIHaveTheBestCardOfSuit(set, player, set.CurrentPlayingRound.SuitLed) && !this.trumpHasBeenPlayedThisRound(set))){
       cardToPlay = this.getBiggestCardOfSuit(player.Hand.Cards, set.CurrentPlayingRound.SuitLed);
     }
     else{
@@ -336,15 +337,21 @@ export class AIPlayCardService {
 
       // See if I have to follow suit.
       if (cardToPlay == null) {
-        // We can't follow suit, see if we can trump in
-        var lowestTrumpCardIHave = this.getLowestCardOfSuit(player.Hand.Cards, set.TrumpSuit);
 
-        if (set.CurrentPlayingRound.SuitLed != set.TrumpSuit && lowestTrumpCardIHave != null) {
-          cardToPlay = lowestTrumpCardIHave;
-        }
-        else{
-          // trump was led or I can't trump in, get the worst card we have in our hand
+        if (this.partnerIsWinningTheRound(set, player)) {
           cardToPlay = this.getWorstCard(set, player);
+        }
+        else {
+          // We can't follow suit, see if we can trump in
+          var lowestTrumpCardIHave = this.getLowestCardOfSuit(player.Hand.Cards, set.TrumpSuit);
+
+          if (set.CurrentPlayingRound.SuitLed != set.TrumpSuit && lowestTrumpCardIHave != null) {
+            cardToPlay = lowestTrumpCardIHave;
+          }
+          else {
+            // trump was led or I can't trump in, get the worst card we have in our hand
+            cardToPlay = this.getWorstCard(set, player);
+          }
         }
       }
     }
@@ -355,10 +362,6 @@ export class AIPlayCardService {
   ///
   /// Helper functions
   ///
-  private winningBid(set: Set): Bid {
-    return set.PlayerWhoWonTheBid.Bid;
-  }
-
   private isItMyTeamsBid(set: Set, player: SetPlayer): boolean {
     var partner = this.getPartner(set, player);
 
@@ -515,11 +518,6 @@ export class AIPlayCardService {
     return cardFromEnemy1Bid == null ? cardFromEnemy2Bid : cardFromEnemy1Bid;
   }
 
-  private isOneOfMyEnemiesOutOfSuit(set: Set, player: SetPlayer, suit: Suit): boolean {
-    var enemyIds = this.getEnemyIds(set, player);
-    return this.playerOutOfSuit(set, suit, enemyIds[0]) || this.playerOutOfSuit(set, suit, enemyIds[1]);
-  }
-
   private doIHaveTheBestCardOfSuit(set: Set, player: SetPlayer, suit: Suit): boolean {
     var allCardsRemainingOfThisSuit = this.allCardsRemainingOfSuit(set, suit);
     return _.find(player.Hand.Cards, allCardsRemainingOfThisSuit[allCardsRemainingOfThisSuit.length - 1]) != null;
@@ -634,14 +632,14 @@ export class AIPlayCardService {
       // Try to short suit if I have trump.
       if(nonTrumpCards.length > 1 && _.filter(player.Hand.Cards, { suit: set.TrumpSuit }).length > 0){
         // Short Suit - my shortest suit.
-        var suitsIHave = _.uniq(_.map(nonTrumpCards, (card: Card) => { return { suit: card.suit, count: 0 }; }));
-        _.each(suitsIHave, (suitAndCount) => {
-          suitAndCount.count = _.filter(nonTrumpCards, {suit: suitAndCount.suit}).length;
+        var suits: Suit[] = _.uniq(_.map(nonTrumpCards, (card: Card) => { return card.suit; }));
+        var suitsIHave = [];
+        _.each(suits, (suit) => {
+          suitsIHave.push({  suit: suit, count: _.filter(nonTrumpCards, {suit: suit }).length })
         });
 
         suitsIHave = _.sortBy(suitsIHave, 'count');
-
-        var lowestCountSuit: Suit = suitsIHave[0];
+        var lowestCountSuit: Suit = suitsIHave[0].suit;
 
         // Return the lowest card of my smallest suit.
         return _.find(_.sortBy(nonTrumpCards, 'value'), { suit: lowestCountSuit });

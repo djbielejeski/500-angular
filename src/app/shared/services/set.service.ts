@@ -1,25 +1,15 @@
 import * as _ from 'lodash';
-import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpRequest } from '@angular/common/http';
-import {Card, CardValue, Game, Hand, Set, SetPlayer, Suit} from '@app/shared/models';
+import { Injectable} from '@angular/core';
+import {Card, CardValue, Game, Hand, PlayerType, Set, SetPlayer, Suit} from '@app/shared/models';
 import {AIBidService} from '@app/shared/services/ai-bid.service';
 import {AIDiscardService} from "@app/shared/services/ai-discard.service";
 import {AIPlayCardService} from '@app/shared/services/ai-play-card.service';
 
 @Injectable()
 export class SetService {
+
   constructor(private aiBidService: AIBidService, private aiDiscardService: AIDiscardService, private aiPlayCardService: AIPlayCardService){
 
-  }
-
-  startBidding(set: Set){
-    while(!set.BiddingComplete) {
-      this.aiBidService.getBid(set);
-    }
-
-    if(!set.Redeal) {
-      this.fixAllCardsForNewTrumpSuit(set);
-    }
   }
 
   resolveBlind(set: Set){
@@ -79,7 +69,7 @@ export class SetService {
   }
 
 
-  private fixAllCardsForNewTrumpSuit(set: Set){
+  fixAllCardsForNewTrumpSuit(set: Set){
     // Go through each person and flip bauers to the correct values.
     _.each(set.Players, (player: SetPlayer) => {
       this.fixHand(player.Hand, set.TrumpSuit)
